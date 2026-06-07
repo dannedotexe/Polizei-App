@@ -1,0 +1,17 @@
+export const Colors = {
+  background: '#111111',
+  surface: '#1e1e1e',
+  surfaceLight: '#2a2a2a',
+  primary: '#25d366',
+  primaryDark: '#128c7e',
+  accent: '#00bcd4',
+  danger: '#e63946',
+  warning: '#f4a261',
+  success: '#25d366',
+  text: '#e8e8e8',
+  textSecondary: '#8c8c8c',
+  border: '#2a2a2a',
+  bubble: '#1f3a2e',
+  bubbleOther: '#2a2a2a',
+  mapOverlay: 'rgba(17, 17, 17, 0.9)',
+};
