@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#1a1a1a">
+<meta name="theme-color" content="#0d1117">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,133 +13,146 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0d1117;color:#e8e8e8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;overflow:hidden;}
+body{background:#0d1117;color:#f0f6fc;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;height:100dvh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;overflow:hidden;}
 
 /* HEADER */
-.header{background:#1a1a1a;padding:12px 16px;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;gap:12px;flex-shrink:0;}
-.header-avatar{width:40px;height:40px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.header-info h1{font-size:15px;font-weight:700;}
-.header-info p{font-size:12px;color:#25d366;margin-top:2px;}
-.header-sound{margin-left:auto;background:none;border:none;cursor:pointer;font-size:20px;padding:4px;}
+.header{background:#161b22;padding:14px 16px 12px;border-bottom:1px solid #21262d;flex-shrink:0;}
+.header-top{display:flex;align-items:center;gap:10px;}
+.header-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1f6feb,#388bfd);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 2px 12px rgba(31,111,235,0.45);}
+.header-title{flex:1;}
+.header-title h1{font-size:16px;font-weight:700;letter-spacing:-0.3px;}
+.header-title p{font-size:11px;color:#7d8590;margin-top:2px;}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#3fb950;margin-right:5px;animation:livepulse 2s infinite;}
+@keyframes livepulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(63,185,80,.5)}50%{opacity:.7;box-shadow:0 0 0 4px rgba(63,185,80,0)}}
+.header-btn{background:none;border:none;cursor:pointer;font-size:19px;padding:6px;border-radius:8px;transition:background .2s;}
+.header-btn:hover{background:#21262d;}
 
 /* TABS */
-.tabs{display:flex;background:#1a1a1a;border-bottom:1px solid #2a2a2a;flex-shrink:0;}
-.tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:600;color:#8c8c8c;cursor:pointer;border-bottom:2px solid transparent;}
-.tab.active{color:#25d366;border-bottom-color:#25d366;}
+.tabs{display:flex;background:#161b22;border-bottom:1px solid #21262d;flex-shrink:0;padding:0 8px;}
+.tab{padding:10px 18px;font-size:13px;font-weight:600;color:#7d8590;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.tab.active{color:#f0f6fc;border-bottom-color:#1f6feb;}
 
-/* CHAT */
-.chat-view{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
-.map-view{flex:1;display:none;flex-direction:column;min-height:0;}
-.messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+/* FEED */
+.feed-view{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+.feed-scroll{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#30363d;border-radius:2px;}
 
-.date-sep{text-align:center;color:#8c8c8c;font-size:11px;margin:8px 0;position:relative;}
-.date-sep::before,.date-sep::after{content:'';position:absolute;top:50%;width:35%;height:1px;background:#2a2a2a;}
-.date-sep::before{left:0;} .date-sep::after{right:0;}
+/* CARDS */
+.card{background:#161b22;border:1px solid #21262d;border-radius:14px;overflow:hidden;transition:transform .15s;cursor:pointer;}
+.card:active{transform:scale(0.985);}
+.card.new-card{border-color:#1f6feb55;box-shadow:0 0 0 1px #1f6feb22,0 4px 20px rgba(31,111,235,.15);animation:cardIn .35s ease-out;}
+@keyframes cardIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.card.expired{opacity:.4;filter:grayscale(.4);}
+.card.mine{border-color:#238636aa;}
 
-.bubble-row{display:flex;align-items:flex-end;gap:8px;}
-.bubble-row.me{flex-direction:row-reverse;}
-.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;color:#fff;}
-.bubble{max-width:78%;background:#1e1e1e;border-radius:12px 12px 12px 3px;padding:8px 10px 6px;}
-.bubble-row.me .bubble{background:#1f3a2e;border-radius:12px 12px 3px 12px;}
-.expired .bubble{opacity:0.4;}
-.bubble-name{font-size:12px;font-weight:700;color:#25d366;margin-bottom:3px;}
-.bubble-text{font-size:15px;line-height:1.4;}
-.bubble-footer{display:flex;align-items:center;margin-top:5px;gap:6px;}
-.type-badge{display:flex;align-items:center;gap:4px;border-radius:4px;padding:2px 6px;font-size:11px;font-weight:600;}
-.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
-.bubble-time{font-size:11px;color:#8c8c8c;margin-left:auto;white-space:nowrap;}
-.expired-label{font-size:10px;color:#e63946;margin-left:4px;}
+.card-accent{height:3px;width:100%;}
+.card-body{padding:12px 14px 12px;}
 
-.input-bar{background:#1a1a1a;padding:8px;border-top:1px solid #2a2a2a;display:flex;gap:8px;align-items:center;flex-shrink:0;}
-.type-btn{display:flex;align-items:center;gap:5px;border:1.5px solid;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px;font-weight:700;background:transparent;white-space:nowrap;}
-.msg-input{flex:1;background:#2a2a2a;border:none;border-radius:20px;padding:9px 14px;color:#e8e8e8;font-size:15px;outline:none;font-family:inherit;}
-.send-btn{width:38px;height:38px;border-radius:50%;background:#25d366;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.card-header{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.card-avatar{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0;}
+.card-meta{flex:1;min-width:0;}
+.card-name{font-size:13px;font-weight:600;color:#f0f6fc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-time{font-size:11px;color:#7d8590;margin-top:1px;}
+.type-badge{display:flex;align-items:center;gap:4px;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;letter-spacing:.2px;white-space:nowrap;flex-shrink:0;}
+.new-badge{background:#1f6feb22;border:1px solid #1f6feb55;color:#388bfd;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:.5px;margin-left:4px;flex-shrink:0;}
+
+.card-message{font-size:16px;font-weight:500;color:#f0f6fc;line-height:1.45;margin-bottom:8px;}
+
+.card-footer{display:flex;align-items:center;gap:6px;}
+.expired-tag{font-size:10px;color:#da3633;background:#da363315;border:1px solid #da363333;border-radius:5px;padding:2px 7px;}
+
+/* INPUT */
+.input-area{background:#161b22;border-top:1px solid #21262d;padding:10px 12px 14px;flex-shrink:0;}
+.type-row{display:flex;gap:6px;margin-bottom:9px;overflow-x:auto;padding-bottom:1px;}
+.type-pill{display:flex;align-items:center;gap:5px;border:1.5px solid #30363d;border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;color:#7d8590;cursor:pointer;white-space:nowrap;background:transparent;transition:all .2s;flex-shrink:0;}
+.type-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.msg-row{display:flex;gap:8px;align-items:center;}
+.msg-input{flex:1;background:#21262d;border:1px solid #30363d;border-radius:12px;padding:10px 14px;color:#f0f6fc;font-size:15px;outline:none;font-family:inherit;transition:border-color .2s;}
+.msg-input:focus{border-color:#1f6feb;}
+.msg-input::placeholder{color:#7d8590;}
+.send-btn{width:42px;height:42px;border-radius:12px;background:#1f6feb;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s,transform .1s;box-shadow:0 2px 10px rgba(31,111,235,.4);}
+.send-btn:hover{background:#388bfd;}
+.send-btn:active{transform:scale(.9);}
 
 /* MAP */
-.map-filters{background:#1a1a1a;padding:8px 12px;display:flex;gap:6px;border-bottom:1px solid #333;flex-shrink:0;overflow-x:auto;}
-.filter-chip{border:1.5px solid #333;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#8c8c8c;cursor:pointer;white-space:nowrap;background:transparent;}
-.filter-chip.active{background:#25d366;border-color:#25d366;color:#fff;}
+.map-view{flex:1;display:none;flex-direction:column;min-height:0;}
+.map-filters{background:#161b22;padding:8px 12px;display:flex;gap:6px;border-bottom:1px solid #21262d;flex-shrink:0;overflow-x:auto;}
+.filter-chip{border:1.5px solid #30363d;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#7d8590;cursor:pointer;white-space:nowrap;background:transparent;transition:all .2s;}
+.filter-chip.active{background:#1f6feb;border-color:#1f6feb;color:#fff;}
 #leaflet-map{flex:1;min-height:0;}
-.map-legend{background:#1a1a1a;padding:8px 16px;display:flex;gap:14px;border-top:1px solid #333;flex-shrink:0;flex-wrap:wrap;}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#8c8c8c;}
-.leg-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.map-legend{background:#161b22;padding:8px 16px;display:flex;gap:12px;border-top:1px solid #21262d;flex-shrink:0;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#7d8590;}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.map-ctrl-sat{position:absolute;top:10px;right:10px;z-index:1000;background:#161b22ee;border:1.5px solid #30363d;border-radius:10px;padding:7px 12px;cursor:pointer;font-size:12px;font-weight:700;color:#f0f6fc;box-shadow:0 2px 12px rgba(0,0,0,.5);transition:all .2s;backdrop-filter:blur(8px);}
+.map-ctrl-sat.active{background:#1f6feb;border-color:#1f6feb;}
+.map-ctrl-gps{position:absolute;top:52px;right:10px;z-index:1000;background:#161b22ee;border:1.5px solid #30363d;border-radius:10px;padding:7px 10px;cursor:pointer;font-size:16px;box-shadow:0 2px 12px rgba(0,0,0,.5);backdrop-filter:blur(8px);}
 
-/* MAP CONTROLS */
-.map-ctrl-sat{position:absolute;top:10px;right:10px;z-index:1000;background:#1e1e1e;border:2px solid #333;border-radius:8px;padding:7px 10px;cursor:pointer;font-size:12px;font-weight:700;color:#e8e8e8;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
-.map-ctrl-sat.active{background:#25d366;border-color:#25d366;color:#fff;}
-.map-ctrl-gps{position:absolute;top:52px;right:10px;z-index:1000;background:#1e1e1e;border:2px solid #333;border-radius:8px;padding:7px 10px;cursor:pointer;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
-
-/* POPUP */
-.leaflet-popup-content-wrapper{background:#1e1e1e;color:#e8e8e8;border:1px solid #333;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
-.leaflet-popup-tip{background:#1e1e1e;}
-.leaflet-popup-content{margin:10px 14px;}
-.popup-name{color:#25d366;font-weight:700;font-size:13px;margin-bottom:4px;}
-.popup-msg{font-size:14px;margin-bottom:6px;}
+/* LEAFLET DARK */
+.leaflet-popup-content-wrapper{background:#161b22;color:#f0f6fc;border:1px solid #30363d;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.6);}
+.leaflet-popup-tip{background:#161b22;}
+.leaflet-popup-content{margin:12px 16px;}
+.popup-name{color:#388bfd;font-weight:700;font-size:13px;margin-bottom:4px;}
+.popup-msg{font-size:14px;margin-bottom:8px;line-height:1.4;}
 .popup-row{display:flex;align-items:center;gap:6px;}
 .popup-type{font-size:11px;font-weight:700;}
-.popup-time{font-size:11px;color:#8c8c8c;margin-left:auto;}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:flex-end;justify-content:center;z-index:9999;}
-.modal-overlay.open{display:flex;}
-.modal-sheet{background:#1e1e1e;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:480px;}
-.modal-title{text-align:center;font-weight:700;font-size:16px;margin-bottom:16px;}
-.modal-option{display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:10px;cursor:pointer;}
-.modal-option:hover,.modal-option.selected{background:#2a2a2a;}
-.modal-option-text{flex:1;font-size:16px;}
+.popup-time{font-size:11px;color:#7d8590;margin-left:auto;}
 
 /* TOAST */
-.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#25d366;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+.toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#21262d;border:1px solid #30363d;color:#f0f6fc;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4);}
 .toast.show{opacity:1;}
 
-/* PWA install */
-.install-banner{background:#1a6bcc;color:#fff;padding:10px 16px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0;}
-.install-banner button{background:#fff;color:#1a6bcc;border:none;border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:12px;}
-.install-banner .close-install{background:none;color:#fff;font-size:18px;padding:0 4px;}
+/* PWA */
+.install-banner{background:linear-gradient(90deg,#1f6feb,#388bfd);color:#fff;padding:10px 16px;font-size:13px;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.install-banner button{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:5px 12px;font-weight:700;cursor:pointer;font-size:12px;margin-left:auto;}
+.close-install{background:none !important;border:none !important;font-size:18px !important;margin-left:0 !important;padding:2px 4px !important;}
 </style>
 </head>
 <body>
 
 <div id="install-banner" class="install-banner" style="display:none">
-  📱 Als App installieren!
-  <div style="display:flex;gap:6px;margin-left:auto">
-    <button onclick="installPWA()">Installieren</button>
-    <button class="close-install" onclick="document.getElementById('install-banner').style.display='none'">✕</button>
-  </div>
+  📱 Als App installieren
+  <button onclick="installPWA()">Installieren</button>
+  <button class="close-install" onclick="document.getElementById('install-banner').style.display='none'">✕</button>
 </div>
 
 <div class="header">
-  <div class="header-avatar">🚔</div>
-  <div class="header-info">
-    <h1>Sichtungen Bezirk Schärding</h1>
-    <p>525 Mitglieder · <span id="online-count">4</span> online</p>
+  <div class="header-top">
+    <div class="header-icon">🚔</div>
+    <div class="header-title">
+      <h1>Sichtungen Schärding</h1>
+      <p><span class="live-dot"></span>LIVE · Bezirk Schärding, OÖ</p>
+    </div>
+    <button class="header-btn" id="sound-btn" onclick="toggleSound()" title="Ton">🔔</button>
   </div>
-  <button class="header-sound" id="sound-btn" onclick="toggleSound()" title="Ton an/aus">🔔</button>
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="showTab('chat')">💬 Chat</div>
-  <div class="tab" onclick="showTab('map')">🗺️ Karte</div>
+  <div class="tab active" onclick="showTab('feed')">Meldungen</div>
+  <div class="tab" onclick="showTab('map')">Karte</div>
 </div>
 
-<!-- CHAT -->
-<div class="chat-view" id="chat-view">
-  <div class="messages" id="messages"></div>
-  <div class="input-bar">
-    <button class="type-btn" id="type-btn" onclick="openModal()" style="border-color:#1a6bcc;color:#1a6bcc">
-      <span class="dot" style="background:#1a6bcc"></span>
-      <span id="type-label">Streife</span>
-    </button>
-    <input class="msg-input" id="msg-input" placeholder="Sichtung melden..." maxlength="200" onkeydown="if(event.key==='Enter')sendMsg()">
-    <button class="send-btn" onclick="sendMsg()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
-    </button>
+<!-- FEED -->
+<div class="feed-view" id="feed-view">
+  <div class="feed-scroll" id="feed-scroll"></div>
+  <div class="input-area">
+    <div class="type-row">
+      <button class="type-pill" id="pill-dienst" onclick="selectType('dienst')"><span class="type-dot" style="background:#2563eb"></span>🚔 Streife</button>
+      <button class="type-pill" id="pill-zivil" onclick="selectType('zivil')"><span class="type-dot" style="background:#d97706"></span>🚗 Zivil</button>
+      <button class="type-pill" id="pill-radar" onclick="selectType('radar')"><span class="type-dot" style="background:#dc2626"></span>📡 Radar</button>
+      <button class="type-pill" id="pill-unbekannt" onclick="selectType('unbekannt')"><span class="type-dot" style="background:#6b7280"></span>❓ Unbekannt</button>
+    </div>
+    <div class="msg-row">
+      <input class="msg-input" id="msg-input" placeholder="Sichtung melden..." maxlength="200" onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="send-btn" onclick="sendMsg()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
   </div>
 </div>
 
 <!-- MAP -->
 <div class="map-view" id="map-view">
-  <div class="map-filters" id="map-filters">
+  <div class="map-filters">
     <div class="filter-chip active" onclick="setFilter('alle',this)">Alle</div>
     <div class="filter-chip" onclick="setFilter('dienst',this)">🚔 Streife</div>
     <div class="filter-chip" onclick="setFilter('zivil',this)">🚗 Zivil</div>
@@ -152,32 +165,21 @@ body{background:#0d1117;color:#e8e8e8;font-family:-apple-system,BlinkMacSystemFo
     <button class="map-ctrl-gps" onclick="locateMe()" title="Mein Standort">📍</button>
   </div>
   <div class="map-legend">
-    <div class="legend-item"><span class="leg-dot" style="background:#1a6bcc"></span>Streife</div>
-    <div class="legend-item"><span class="leg-dot" style="background:#f4a261"></span>Zivil</div>
-    <div class="legend-item"><span class="leg-dot" style="background:#e63946"></span>Radar</div>
-    <div class="legend-item"><span class="leg-dot" style="background:#4a5568"></span>Unbekannt</div>
-    <div class="legend-item"><span class="leg-dot" style="background:#555;opacity:0.4"></span>Abgelaufen (>2h)</div>
-  </div>
-</div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-sheet">
-    <div class="modal-title">Art der Sichtung</div>
-    <div class="modal-option selected" onclick="selectType('dienst','Streife','#1a6bcc')"><span class="dot" style="background:#1a6bcc;width:10px;height:10px"></span><span class="modal-option-text">🚔 Streife</span><span id="chk-dienst">✓</span></div>
-    <div class="modal-option" onclick="selectType('zivil','Zivil','#f4a261')"><span class="dot" style="background:#f4a261;width:10px;height:10px"></span><span class="modal-option-text">🚗 Zivil</span><span id="chk-zivil"></span></div>
-    <div class="modal-option" onclick="selectType('radar','Radar','#e63946')"><span class="dot" style="background:#e63946;width:10px;height:10px"></span><span class="modal-option-text">📡 Radar</span><span id="chk-radar"></span></div>
-    <div class="modal-option" onclick="selectType('unbekannt','Unbekannt','#4a5568')"><span class="dot" style="background:#4a5568;width:10px;height:10px"></span><span class="modal-option-text">❓ Unbekannt</span><span id="chk-unbekannt"></span></div>
+    <div class="legend-item"><span class="leg-dot" style="background:#2563eb"></span>Streife</div>
+    <div class="legend-item"><span class="leg-dot" style="background:#d97706"></span>Zivil</div>
+    <div class="legend-item"><span class="leg-dot" style="background:#dc2626"></span>Radar</div>
+    <div class="legend-item"><span class="leg-dot" style="background:#6b7280"></span>Unbekannt</div>
+    <div class="legend-item"><span class="leg-dot" style="background:#555;opacity:.4"></span>Abgelaufen</div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const COLORS={dienst:'#1a6bcc',zivil:'#f4a261',radar:'#e63946',unbekannt:'#4a5568'};
+const COLORS={dienst:'#2563eb',zivil:'#d97706',radar:'#dc2626',unbekannt:'#6b7280'};
 const LABELS={dienst:'Streife',zivil:'Zivil',radar:'Radar',unbekannt:'Unbekannt'};
 const ICONS={dienst:'🚔',zivil:'🚗',radar:'📡',unbekannt:'❓'};
-const AV_COLORS=['#128c7e','#075e54','#1a6bcc','#9c27b0','#e91e63','#ff5722','#e67e22'];
+const AV_COLORS=['#1f6feb','#2ea043','#d29922','#f78166','#bc8cff','#e91e63','#00bcd4'];
 const EXPIRE_MS=2*60*60*1000;
 
 let map=null,osmLayer=null,satLayer=null,isSat=false,soundOn=true,currentType='dienst',activeFilter='alle';
@@ -186,17 +188,18 @@ let deferredPrompt=null;
 
 const now=Date.now();
 const sightings=[
-  {id:1,name:'Niklas Hubinger',msg:'Esternberg durch 🚔',type:'dienst',ts:now-10*60000,me:false,lat:48.4368,lng:13.5263},
-  {id:2,name:'Alexander Widegger',msg:'Eisenbirn ause Richtung Ludham',type:'zivil',ts:now-25*60000,me:false,lat:48.4502,lng:13.4831},
-  {id:3,name:'Joni',msg:'Raab durch',type:'dienst',ts:now-45*60000,me:false,lat:48.3615,lng:13.6538},
-  {id:4,name:'Drumme Bua',msg:'Wienertsham durch Richtung azs',type:'zivil',ts:now-55*60000,me:false,lat:48.4112,lng:13.5987},
-  {id:5,name:'Çiňe',msg:'Wernstein Motorikpark vorbei',type:'radar',ts:now-75*60000,me:false,lat:48.5021,lng:13.4412},
-  {id:6,name:'Çiňe',msg:'Richtung Schärding ause',type:'unbekannt',ts:now-130*60000,me:false,lat:48.4539,lng:13.4347},
-  {id:7,name:'Kilian Jerabek',msg:'Kiwara ziang leid ausa Münzkircha feitinger 🚓',type:'dienst',ts:now-150*60000,me:false,lat:48.4721,lng:13.5623},
+  {id:1,name:'Niklas Hubinger',msg:'Esternberg durch 🚔',type:'dienst',ts:now-10*60000,lat:48.4368,lng:13.5263},
+  {id:2,name:'Alexander Widegger',msg:'Eisenbirn ause Richtung Ludham',type:'zivil',ts:now-25*60000,lat:48.4502,lng:13.4831},
+  {id:3,name:'Joni',msg:'Raab durch',type:'dienst',ts:now-45*60000,lat:48.3615,lng:13.6538},
+  {id:4,name:'Drumme Bua',msg:'Wienertsham durch Richtung azs',type:'zivil',ts:now-55*60000,lat:48.4112,lng:13.5987},
+  {id:5,name:'Çiňe',msg:'Wernstein Motorikpark vorbei',type:'radar',ts:now-75*60000,lat:48.5021,lng:13.4412},
+  {id:6,name:'Çiňe',msg:'Richtung Schärding ause',type:'unbekannt',ts:now-130*60000,lat:48.4539,lng:13.4347},
+  {id:7,name:'Kilian Jerabek',msg:'Kiwara ziang leid ausa Münzkircha feitinger 🚓',type:'dienst',ts:now-150*60000,lat:48.4721,lng:13.5623},
 ];
 
 function avatarColor(n){let h=0;for(let c of n)h=c.charCodeAt(0)+((h<<5)-h);return AV_COLORS[Math.abs(h)%AV_COLORS.length];}
 function isExpired(s){return Date.now()-s.ts>EXPIRE_MS;}
+function isNew(s){return Date.now()-s.ts<5*60000;}
 function timeAgo(ts){
   const m=Math.floor((Date.now()-ts)/60000);
   if(m<1)return 'gerade eben';
@@ -206,21 +209,27 @@ function timeAgo(ts){
   return `vor ${Math.floor(h/24)} Tagen`;
 }
 
-function renderMessages(){
-  const el=document.getElementById('messages');
+function renderFeed(){
+  const el=document.getElementById('feed-scroll');
   const sorted=[...sightings].sort((a,b)=>b.ts-a.ts);
   let html='';
-  sorted.forEach((s,i)=>{
-    const c=COLORS[s.type],l=LABELS[s.type],exp=isExpired(s);
-    html+=`<div class="bubble-row ${s.me?'me':''} ${exp?'expired':''}">
-      ${!s.me?`<div class="avatar" style="background:${avatarColor(s.name)}">${s.name[0]}</div>`:''}
-      <div class="bubble">
-        ${!s.me?`<div class="bubble-name">${s.name}</div>`:''}
-        <div class="bubble-text">${s.msg}</div>
-        <div class="bubble-footer">
-          <div class="type-badge" style="background:${c}22"><span class="dot" style="background:${c}"></span><span style="color:${c}">${l}</span></div>
-          <span class="bubble-time">${timeAgo(s.ts)}${exp?'<span class="expired-label">· abgelaufen</span>':''}</span>
+  sorted.forEach(s=>{
+    const c=COLORS[s.type],exp=isExpired(s),fresh=isNew(s);
+    const initials=s.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    html+=`<div class="card${exp?' expired':''}${fresh?' new-card':''}${s.me?' mine':''}">
+      <div class="card-accent" style="background:${c}"></div>
+      <div class="card-body">
+        <div class="card-header">
+          <div class="card-avatar" style="background:${avatarColor(s.name)}">${initials}</div>
+          <div class="card-meta">
+            <div class="card-name">${s.name}</div>
+            <div class="card-time">${timeAgo(s.ts)}</div>
+          </div>
+          <div class="type-badge" style="background:${c}22;color:${c}">${ICONS[s.type]} ${LABELS[s.type]}</div>
+          ${fresh?'<div class="new-badge">NEU</div>':''}
         </div>
+        <div class="card-message">${s.msg}</div>
+        ${exp?'<div class="card-footer"><span class="expired-tag">⌛ abgelaufen</span></div>':''}
       </div>
     </div>`;
   });
@@ -238,22 +247,16 @@ function initMap(){
 }
 
 function renderMapMarkers(){
-  mapMarkers.forEach(m=>map.removeLayer(m));
-  mapMarkers=[];
+  mapMarkers.forEach(m=>map.removeLayer(m));mapMarkers=[];
   const filtered=activeFilter==='alle'?sightings:sightings.filter(s=>s.type===activeFilter);
   filtered.forEach(s=>{
     const c=COLORS[s.type],exp=isExpired(s);
-    const opacity=exp?0.35:1;
-    const icon=L.divIcon({
-      className:'',
-      html:`<div style="width:36px;height:36px;border-radius:50%;background:${c};border:3px solid ${exp?'#555':'white'};display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,0.5);font-size:15px;opacity:${opacity};transition:opacity 0.3s;">${ICONS[s.type]}</div>`,
-      iconSize:[36,36],iconAnchor:[18,18],popupAnchor:[0,-22]
-    });
+    const icon=L.divIcon({className:'',html:`<div style="width:36px;height:36px;border-radius:50%;background:${c};border:3px solid ${exp?'#555':'#fff'};display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,.5);font-size:15px;opacity:${exp?.3:1};">${ICONS[s.type]}</div>`,iconSize:[36,36],iconAnchor:[18,18],popupAnchor:[0,-22]});
     const marker=L.marker([s.lat,s.lng],{icon}).addTo(map).bindPopup(`
       <div class="popup-name">${s.name}</div>
       <div class="popup-msg">${s.msg}</div>
       <div class="popup-row">
-        <span class="dot" style="background:${c};width:8px;height:8px"></span>
+        <span style="background:${c};width:8px;height:8px;border-radius:50%;display:inline-block"></span>
         <span class="popup-type" style="color:${c}">${LABELS[s.type]}</span>
         <span class="popup-time">${timeAgo(s.ts)}${exp?' · abgelaufen':''}</span>
       </div>`);
@@ -262,8 +265,7 @@ function renderMapMarkers(){
 }
 
 function toggleSatellite(){
-  isSat=!isSat;
-  const btn=document.getElementById('sat-btn');
+  isSat=!isSat;const btn=document.getElementById('sat-btn');
   if(isSat){map.removeLayer(osmLayer);satLayer.addTo(map);btn.classList.add('active');btn.textContent='🗺️ Karte';}
   else{map.removeLayer(satLayer);osmLayer.addTo(map);btn.classList.remove('active');btn.textContent='🛰️ Satellit';}
 }
@@ -271,15 +273,14 @@ function toggleSatellite(){
 function setFilter(f,el){
   activeFilter=f;
   document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  if(map)renderMapMarkers();
+  el.classList.add('active');if(map)renderMapMarkers();
 }
 
 function locateMe(){
   if(!navigator.geolocation){showToast('GPS nicht verfügbar');return;}
   navigator.geolocation.getCurrentPosition(pos=>{
-    const {latitude:lat,longitude:lng}=pos.coords;
-    const icon=L.divIcon({className:'',html:`<div style="width:20px;height:20px;border-radius:50%;background:#25d366;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.5);"></div>`,iconSize:[20,20],iconAnchor:[10,10]});
+    const{latitude:lat,longitude:lng}=pos.coords;
+    const icon=L.divIcon({className:'',html:`<div style="width:20px;height:20px;border-radius:50%;background:#3fb950;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.5);"></div>`,iconSize:[20,20],iconAnchor:[10,10]});
     L.marker([lat,lng],{icon}).addTo(map).bindPopup('<b>Dein Standort</b>').openPopup();
     map.flyTo([lat,lng],14);
   },()=>showToast('GPS-Zugriff verweigert'));
@@ -295,68 +296,69 @@ function playSound(){
   if(!soundOn)return;
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [0,150].forEach(delay=>{
+    [0,160].forEach(delay=>{
       const o=ctx.createOscillator(),g=ctx.createGain();
       o.connect(g);g.connect(ctx.destination);
-      o.frequency.value=880+delay;o.type='sine';
+      o.frequency.value=900+delay;o.type='sine';
       const t=ctx.currentTime+delay/1000;
       g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.25,t+0.02);
       g.gain.exponentialRampToValueAtTime(0.001,t+0.25);
-      o.start(t);o.stop(t+0.25);
+      o.start(t);o.stop(t+0.26);
     });
   }catch(e){}
 }
 
-function showToast(msg,dur=2000){
+function showToast(msg,dur=2200){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+function selectType(type){
+  currentType=type;
+  ['dienst','zivil','radar','unbekannt'].forEach(t=>{
+    const p=document.getElementById('pill-'+t);
+    const active=t===type;
+    p.classList.toggle('active',active);
+    p.style.background=active?COLORS[t]+'22':'';
+    p.style.borderColor=active?COLORS[t]+'99':'';
+    p.style.color=active?COLORS[t]:'';
+  });
 }
 
 function sendMsg(){
   const input=document.getElementById('msg-input');
   const text=input.value.trim();if(!text)return;
-  const lat=48.43+(Math.random()-0.5)*0.2,lng=13.50+(Math.random()-0.5)*0.25;
-  const s={id:Date.now(),name:'Ich',msg:text,type:currentType,ts:Date.now(),me:true,lat,lng};
+  const lat=48.43+(Math.random()-.5)*.2,lng=13.50+(Math.random()-.5)*.25;
+  const s={id:Date.now(),name:'Du',msg:text,type:currentType,ts:Date.now(),me:true,lat,lng};
   sightings.unshift(s);input.value='';
-  renderMessages();playSound();
-  showToast('✓ Sichtung gemeldet!');
+  renderFeed();playSound();showToast('✓ Sichtung gemeldet!');
   if(map){
     const c=COLORS[currentType];
-    const icon=L.divIcon({className:'',html:`<div style="width:36px;height:36px;border-radius:50%;background:${c};border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,0.5);font-size:15px;">${ICONS[currentType]}</div>`,iconSize:[36,36],iconAnchor:[18,18],popupAnchor:[0,-22]});
-    L.marker([lat,lng],{icon}).addTo(map).bindPopup(`<div class="popup-name">Ich</div><div class="popup-msg">${text}</div>`).openPopup();
+    const icon=L.divIcon({className:'',html:`<div style="width:36px;height:36px;border-radius:50%;background:${c};border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(0,0,0,.5);font-size:15px;">${ICONS[currentType]}</div>`,iconSize:[36,36],iconAnchor:[18,18],popupAnchor:[0,-22]});
+    L.marker([lat,lng],{icon}).addTo(map).bindPopup(`<div class="popup-name">Du</div><div class="popup-msg">${text}</div>`).openPopup();
     map.flyTo([lat,lng],13);
   }
 }
 
 function showTab(tab){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='chat')||(i===1&&tab==='map')));
-  document.getElementById('chat-view').style.display=tab==='chat'?'flex':'none';
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='feed')||(i===1&&tab==='map')));
+  document.getElementById('feed-view').style.display=tab==='feed'?'flex':'none';
   document.getElementById('map-view').style.display=tab==='map'?'flex':'none';
   if(tab==='map')setTimeout(()=>{initMap();map.invalidateSize();},100);
 }
 
-function openModal(){document.getElementById('modal').classList.add('open');}
-function closeModal(){document.getElementById('modal').classList.remove('open');}
-function selectType(type,label,color){
-  currentType=type;
-  ['dienst','zivil','radar','unbekannt'].forEach(t=>document.getElementById('chk-'+t).textContent=t===type?'✓':'');
-  const btn=document.getElementById('type-btn');
-  btn.style.borderColor=color;btn.style.color=color;btn.querySelector('.dot').style.background=color;
-  document.getElementById('type-label').textContent=label;closeModal();
-}
-
-// PWA
 window.addEventListener('beforeinstallprompt',e=>{
   e.preventDefault();deferredPrompt=e;
   document.getElementById('install-banner').style.display='flex';
 });
-function installPWA(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').style.display='none';});}}
+function installPWA(){
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').style.display='none';});}
+}
 
-// Auto-refresh time labels every minute
-setInterval(()=>{renderMessages();if(map)renderMapMarkers();},60000);
-
-renderMessages();
-showTab('chat');
+selectType('dienst');
+setInterval(()=>{renderFeed();if(map)renderMapMarkers();},60000);
+renderFeed();
+showTab('feed');
 </script>
 </body>
 </html>
