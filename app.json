@@ -9,28 +9,12 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.polizei.app",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Die App benötigt Ihren Standort für die Kartenfunktion.",
-        "NSLocationAlwaysUsageDescription": "Die App benötigt Ihren Standort für die Einsatznavigation."
+        "NSLocationWhenInUseUsageDescription": "Standort für Kartenfunktion."
       }
     },
     "android": {
       "package": "com.polizei.app",
-      "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
-      ]
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Standortzugriff für Einsatznavigation erforderlich."
-        }
-      ]
-    ],
-    "experiments": {
-      "typedRoutes": true
+      "permissions": ["ACCESS_FINE_LOCATION"]
     },
     "scheme": "polizei-app"
   }
