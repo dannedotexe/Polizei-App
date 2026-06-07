@@ -4,70 +4,66 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Sichtungen Bezirk Schärding</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #0d1117; color: #e8e8e8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; }
 
-  /* Header */
-  .header { background: #1a1a1a; padding: 12px 16px; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; gap: 12px; }
+  .header { background: #1a1a1a; padding: 12px 16px; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
   .header-avatar { width: 40px; height: 40px; border-radius: 50%; background: #25d366; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
   .header-info h1 { font-size: 15px; font-weight: 700; }
   .header-info p { font-size: 12px; color: #25d366; margin-top: 2px; }
 
-  /* Tabs */
-  .tabs { display: flex; background: #1a1a1a; border-bottom: 1px solid #2a2a2a; }
+  .tabs { display: flex; background: #1a1a1a; border-bottom: 1px solid #2a2a2a; flex-shrink: 0; }
   .tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 600; color: #8c8c8c; cursor: pointer; border-bottom: 2px solid transparent; }
   .tab.active { color: #25d366; border-bottom-color: #25d366; }
 
-  /* Chat */
-  .chat-view, .map-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-  .map-view { display: none; }
-  .messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .chat-view { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+  .map-view { flex: 1; display: none; flex-direction: column; min-height: 0; }
 
+  .messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
   .bubble-row { display: flex; align-items: flex-end; gap: 8px; }
   .bubble-row.me { flex-direction: row-reverse; }
-  .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; color: #fff; }
   .bubble { max-width: 78%; background: #1e1e1e; border-radius: 12px 12px 12px 3px; padding: 8px 10px 6px; }
   .bubble-row.me .bubble { background: #1f3a2e; border-radius: 12px 12px 3px 12px; }
   .bubble-name { font-size: 12px; font-weight: 700; color: #25d366; margin-bottom: 3px; }
   .bubble-text { font-size: 15px; line-height: 1.4; }
   .bubble-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 5px; gap: 8px; }
   .type-badge { display: flex; align-items: center; gap: 4px; border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: 600; }
-  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-  .bubble-time { font-size: 11px; color: #8c8c8c; margin-left: auto; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .bubble-time { font-size: 11px; color: #8c8c8c; margin-left: auto; white-space: nowrap; }
 
-  /* Input */
-  .input-bar { background: #1a1a1a; padding: 8px; border-top: 1px solid #2a2a2a; display: flex; gap: 8px; align-items: center; }
+  .input-bar { background: #1a1a1a; padding: 8px; border-top: 1px solid #2a2a2a; display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
   .type-btn { display: flex; align-items: center; gap: 5px; border: 1.5px solid; border-radius: 8px; padding: 6px 8px; cursor: pointer; font-size: 12px; font-weight: 700; background: transparent; white-space: nowrap; }
   .msg-input { flex: 1; background: #2a2a2a; border: none; border-radius: 20px; padding: 9px 14px; color: #e8e8e8; font-size: 15px; outline: none; font-family: inherit; }
   .send-btn { width: 38px; height: 38px; border-radius: 50%; background: #25d366; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .send-btn svg { fill: white; }
 
-  /* Type modal */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; z-index: 100; }
+  /* MAP */
+  #leaflet-map { flex: 1; min-height: 0; }
+  .map-legend { background: #1a1a1a; padding: 8px 16px; display: flex; gap: 16px; border-top: 1px solid #333; flex-shrink: 0; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #8c8c8c; }
+  .leg-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Leaflet popup dark */
+  .leaflet-popup-content-wrapper { background: #1e1e1e; color: #e8e8e8; border: 1px solid #333; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+  .leaflet-popup-tip { background: #1e1e1e; }
+  .leaflet-popup-content { margin: 10px 14px; }
+  .popup-name { color: #25d366; font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+  .popup-msg { font-size: 14px; margin-bottom: 6px; }
+  .popup-row { display: flex; align-items: center; gap: 6px; }
+  .popup-type { font-size: 11px; font-weight: 700; }
+  .popup-time { font-size: 11px; color: #8c8c8c; margin-left: auto; }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: flex-end; justify-content: center; z-index: 9999; }
   .modal-overlay.open { display: flex; }
-  .modal-sheet { background: #1e1e1e; border-radius: 16px 16px 0 0; padding: 20px; width: 100%; max-width: 480px; margin: 0 auto; }
+  .modal-sheet { background: #1e1e1e; border-radius: 16px 16px 0 0; padding: 20px; width: 100%; max-width: 480px; }
   .modal-title { text-align: center; font-weight: 700; font-size: 16px; margin-bottom: 16px; }
   .modal-option { display: flex; align-items: center; gap: 12px; padding: 14px 12px; border-radius: 10px; cursor: pointer; }
   .modal-option:hover, .modal-option.selected { background: #2a2a2a; }
   .modal-option-text { flex: 1; font-size: 16px; }
-
-  /* Map view */
-  .map-placeholder { background: #1a1a1a; height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border-bottom: 1px solid #333; }
-  .map-placeholder svg { opacity: 0.3; }
-  .map-placeholder h3 { color: #888; font-size: 16px; }
-  .map-placeholder p { color: #555; font-size: 13px; }
-  .legend { display: flex; gap: 16px; padding: 10px 16px; background: #1a1a1a; border-bottom: 1px solid #333; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #8c8c8c; }
-  .sightings-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
-  .sight-card { background: #1e1e1e; border-radius: 10px; padding: 12px; border-left: 3px solid; border: 1px solid #333; }
-  .sight-card-row { display: flex; align-items: center; gap: 10px; }
-  .sight-info { flex: 1; }
-  .sight-name { font-weight: 700; font-size: 14px; }
-  .sight-msg { color: #8c8c8c; font-size: 13px; margin-top: 2px; }
-  .sight-right { text-align: right; }
-  .sight-time { font-size: 11px; color: #8c8c8c; }
-  .sight-type { font-size: 11px; font-weight: 700; margin-top: 3px; }
 </style>
 </head>
 <body>
@@ -85,7 +81,7 @@
   <div class="tab" onclick="showTab('map')">🗺️ Karte</div>
 </div>
 
-<!-- CHAT VIEW -->
+<!-- CHAT -->
 <div class="chat-view" id="chat-view">
   <div class="messages" id="messages"></div>
   <div class="input-bar">
@@ -95,45 +91,41 @@
     </button>
     <input class="msg-input" id="msg-input" placeholder="Sichtung melden..." maxlength="200" onkeydown="if(event.key==='Enter')sendMsg()">
     <button class="send-btn" onclick="sendMsg()">
-      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
     </button>
   </div>
 </div>
 
-<!-- MAP VIEW -->
+<!-- MAP -->
 <div class="map-view" id="map-view">
-  <div class="map-placeholder">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="#888"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
-    <h3>Karte – Bezirk Schärding</h3>
-    <p id="sight-count">7 aktive Sichtungen</p>
+  <div id="leaflet-map"></div>
+  <div class="map-legend">
+    <div class="legend-item"><span class="leg-dot" style="background:#1a6bcc"></span>Streife</div>
+    <div class="legend-item"><span class="leg-dot" style="background:#f4a261"></span>Zivil</div>
+    <div class="legend-item"><span class="leg-dot" style="background:#e63946"></span>Radar</div>
+    <div class="legend-item"><span class="leg-dot" style="background:#4a5568"></span>Unbekannt</div>
   </div>
-  <div class="legend">
-    <div class="legend-item"><span class="dot" style="background:#1a6bcc;width:10px;height:10px"></span>Streife</div>
-    <div class="legend-item"><span class="dot" style="background:#f4a261;width:10px;height:10px"></span>Zivil</div>
-    <div class="legend-item"><span class="dot" style="background:#e63946;width:10px;height:10px"></span>Radar</div>
-  </div>
-  <div class="sightings-list" id="sightings-list"></div>
 </div>
 
-<!-- TYPE MODAL -->
-<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-sheet">
     <div class="modal-title">Art der Sichtung</div>
     <div class="modal-option selected" onclick="selectType('dienst','Streife','#1a6bcc')">
       <span class="dot" style="background:#1a6bcc;width:10px;height:10px"></span>
-      <span class="modal-option-text">Streife</span>✓
+      <span class="modal-option-text">Streife</span><span id="chk-dienst">✓</span>
     </div>
     <div class="modal-option" onclick="selectType('zivil','Zivil','#f4a261')">
       <span class="dot" style="background:#f4a261;width:10px;height:10px"></span>
-      <span class="modal-option-text">Zivil</span>
+      <span class="modal-option-text">Zivil</span><span id="chk-zivil"></span>
     </div>
     <div class="modal-option" onclick="selectType('radar','Radar','#e63946')">
       <span class="dot" style="background:#e63946;width:10px;height:10px"></span>
-      <span class="modal-option-text">Radar</span>
+      <span class="modal-option-text">Radar</span><span id="chk-radar"></span>
     </div>
     <div class="modal-option" onclick="selectType('unbekannt','Unbekannt','#4a5568')">
       <span class="dot" style="background:#4a5568;width:10px;height:10px"></span>
-      <span class="modal-option-text">Unbekannt</span>
+      <span class="modal-option-text">Unbekannt</span><span id="chk-unbekannt"></span>
     </div>
   </div>
 </div>
@@ -141,19 +133,19 @@
 <script>
 const COLORS = { dienst:'#1a6bcc', zivil:'#f4a261', radar:'#e63946', unbekannt:'#4a5568' };
 const LABELS = { dienst:'Streife', zivil:'Zivil', radar:'Radar', unbekannt:'Unbekannt' };
-const AVATAR_COLORS = ['#128c7e','#075e54','#25d366','#1a6bcc','#9c27b0','#e91e63','#ff5722'];
+const AVATAR_COLORS = ['#128c7e','#075e54','#1a6bcc','#9c27b0','#e91e63','#ff5722','#e67e22'];
 
 let currentType = 'dienst';
-let currentColor = '#1a6bcc';
+let map = null;
 
 const sightings = [
-  { id:1, name:'Niklas Hubinger', msg:'Esternberg durch 🚔', type:'dienst', time:'13:31', me:false },
-  { id:2, name:'Alexander Widegger', msg:'Eisenbirn ause Richtung Ludham', type:'zivil', time:'20:26', me:false },
-  { id:3, name:'Joni', msg:'Raab durch', type:'dienst', time:'21:27', me:false },
-  { id:4, name:'Drumme Bua', msg:'Wienertsham durch Richtung azs', type:'zivil', time:'21:32', me:false },
-  { id:5, name:'Çiňe', msg:'Wernstein Motorikpark vorbei', type:'radar', time:'21:53', me:false },
-  { id:6, name:'Çiňe', msg:'Richtung Schärding ause', type:'unbekannt', time:'21:53', me:false },
-  { id:7, name:'Kilian Jerabek', msg:'Kiwara ziang leid ausa Münzkircha feitinger 🚓', type:'dienst', time:'22:35', me:false },
+  { id:1, name:'Niklas Hubinger', msg:'Esternberg durch 🚔', type:'dienst', time:'13:31', me:false, lat:48.4368, lng:13.5263 },
+  { id:2, name:'Alexander Widegger', msg:'Eisenbirn ause Richtung Ludham', type:'zivil', time:'20:26', me:false, lat:48.4502, lng:13.4831 },
+  { id:3, name:'Joni', msg:'Raab durch', type:'dienst', time:'21:27', me:false, lat:48.3615, lng:13.6538 },
+  { id:4, name:'Drumme Bua', msg:'Wienertsham durch Richtung azs', type:'zivil', time:'21:32', me:false, lat:48.4112, lng:13.5987 },
+  { id:5, name:'Çiňe', msg:'Wernstein Motorikpark vorbei', type:'radar', time:'21:53', me:false, lat:48.5021, lng:13.4412 },
+  { id:6, name:'Çiňe', msg:'Richtung Schärding ause', type:'unbekannt', time:'21:53', me:false, lat:48.4539, lng:13.4347 },
+  { id:7, name:'Kilian Jerabek', msg:'Kiwara ziang leid ausa Münzkircha feitinger 🚓', type:'dienst', time:'22:35', me:false, lat:48.4721, lng:13.5623 },
 ];
 
 function avatarColor(name) {
@@ -183,24 +175,50 @@ function renderMessages() {
   }).join('');
 }
 
-function renderSightings() {
-  const el = document.getElementById('sightings-list');
-  el.innerHTML = sightings.map(s => {
+function initMap() {
+  if (map) return;
+  map = L.map('leaflet-map', { zoomControl: true }).setView([48.4539, 13.4700], 11);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 18,
+  }).addTo(map);
+
+  sightings.forEach(s => {
     const c = COLORS[s.type];
-    return `<div class="sight-card" style="border-left-color:${c}">
-      <div class="sight-card-row">
-        <span class="dot" style="background:${c};width:10px;height:10px;flex-shrink:0"></span>
-        <div class="sight-info">
-          <div class="sight-name">${s.name}</div>
-          <div class="sight-msg">${s.msg}</div>
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="width:34px;height:34px;border-radius:50%;background:${c};border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.5);font-size:14px;">
+        ${s.type==='radar'?'📡':s.type==='zivil'?'🚗':'🚔'}
+      </div>`,
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
+      popupAnchor: [0, -20],
+    });
+
+    L.marker([s.lat, s.lng], { icon })
+      .addTo(map)
+      .bindPopup(`
+        <div class="popup-name">${s.name}</div>
+        <div class="popup-msg">${s.msg}</div>
+        <div class="popup-row">
+          <span class="dot" style="background:${c};width:8px;height:8px"></span>
+          <span class="popup-type" style="color:${c}">${LABELS[s.type]}</span>
+          <span class="popup-time">${s.time}</span>
         </div>
-        <div class="sight-right">
-          <div class="sight-time">${s.time}</div>
-          <div class="sight-type" style="color:${c}">${LABELS[s.type]}</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+      `);
+  });
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active',(i===0&&tab==='chat')||(i===1&&tab==='map')));
+  const chatEl = document.getElementById('chat-view');
+  const mapEl = document.getElementById('map-view');
+  chatEl.style.display = tab==='chat' ? 'flex' : 'none';
+  mapEl.style.display = tab==='map' ? 'flex' : 'none';
+  if (tab === 'map') {
+    setTimeout(() => { initMap(); map.invalidateSize(); }, 100);
+  }
 }
 
 function sendMsg() {
@@ -209,34 +227,37 @@ function sendMsg() {
   if(!text) return;
   const now = new Date();
   const time = now.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
-  sightings.unshift({ id:Date.now(), name:'Ich', msg:text, type:currentType, time, me:true });
-  input.value = '';
+  const lat = 48.4539 + (Math.random()-0.5)*0.15;
+  const lng = 13.4700 + (Math.random()-0.5)*0.2;
+  const s = { id:Date.now(), name:'Ich', msg:text, type:currentType, time, me:true, lat, lng };
+  sightings.unshift(s);
+  input.value='';
   renderMessages();
-  renderSightings();
-  document.getElementById('sight-count').textContent = sightings.length + ' aktive Sichtungen';
-}
-
-function showTab(tab) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='chat')||(i===1&&tab==='map')));
-  document.getElementById('chat-view').style.display = tab==='chat' ? 'flex' : 'none';
-  document.getElementById('map-view').style.display = tab==='map' ? 'flex' : 'none';
+  if (map) {
+    const c = COLORS[currentType];
+    const icon = L.divIcon({
+      className:'',
+      html:`<div style="width:34px;height:34px;border-radius:50%;background:${c};border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.5);font-size:14px;">📍</div>`,
+      iconSize:[34,34], iconAnchor:[17,17], popupAnchor:[0,-20]
+    });
+    L.marker([lat,lng],{icon}).addTo(map).bindPopup(`<div class="popup-name">Ich</div><div class="popup-msg">${text}</div>`).openPopup();
+    map.flyTo([lat,lng],13);
+  }
 }
 
 function openModal() { document.getElementById('modal').classList.add('open'); }
-function closeModal(e) { if(e.target===document.getElementById('modal')) document.getElementById('modal').classList.remove('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
 function selectType(type, label, color) {
-  currentType = type; currentColor = color;
+  currentType = type;
+  ['dienst','zivil','radar','unbekannt'].forEach(t => document.getElementById('chk-'+t).textContent = t===type?'✓':'');
   const btn = document.getElementById('type-btn');
-  btn.style.borderColor = color; btn.style.color = color;
-  btn.querySelector('.dot').style.background = color;
-  document.getElementById('type-label').textContent = label;
-  document.querySelectorAll('.modal-option').forEach(o => o.classList.remove('selected'));
-  event.currentTarget.classList.add('selected');
-  document.getElementById('modal').classList.remove('open');
+  btn.style.borderColor=color; btn.style.color=color;
+  btn.querySelector('.dot').style.background=color;
+  document.getElementById('type-label').textContent=label;
+  closeModal();
 }
 
 renderMessages();
-renderSightings();
 showTab('chat');
 </script>
 </body>
