@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Sichtungen">
+<title>Sichtungen Schärding</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{
+  --bg:#000;--s1:#1c1c1e;--s2:#2c2c2e;--s3:#3a3a3c;
+  --bd:#38383a;--t1:#fff;--t2:rgba(235,235,245,.8);--t3:rgba(235,235,245,.55);
+  --blue:#0a84ff;--green:#30d158;--red:#ff453a;--orange:#ff9f0a;--gray:#636366;
+  --cd:#0a84ff;--cz:#ff9f0a;--cr:#ff453a;--cu:#636366;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;display:flex;flex-direction:column;max-width:430px;margin:0 auto;height:100dvh;overflow:hidden;}
+
+/* STATUS BAR */
+.sb{background:var(--bg);padding:14px 24px 4px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.sb-time{font-size:15px;font-weight:600;letter-spacing:-.2px;}
+.sb-icons{display:flex;align-items:center;gap:5px;color:var(--t1);}
+.sb-signal{display:flex;align-items:flex-end;gap:1.5px;height:12px;}
+.sb-bar{width:3px;background:var(--t1);border-radius:1px;}
+.bat{width:22px;height:11px;border:1.5px solid var(--t1);border-radius:3px;position:relative;display:flex;align-items:center;padding:1.5px;}
+.bat::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2px;height:5px;background:var(--t1);border-radius:0 1px 1px 0;}
+.bat-fill{height:100%;background:var(--green);border-radius:1px;width:75%;}
+
+/* NAV HEADER */
+.nav{background:var(--bg);padding:6px 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:.5px solid var(--bd);}
+.nav-ico{width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#1a7ee8,#0455ba);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(10,132,255,.4);}
+.nav-txt{flex:1;}
+.nav-title{font-size:17px;font-weight:700;letter-spacing:-.4px;}
+.nav-sub{font-size:12px;color:var(--t3);margin-top:2px;display:flex;align-items:center;gap:5px;}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 2s ease-in-out infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.nav-btn{width:34px;height:34px;border-radius:50%;background:var(--s2);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--t1);}
+
+/* CONTENT */
+.content{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+.screen{flex:1;display:none;flex-direction:column;min-height:0;}
+.screen.on{display:flex;}
+
+/* FEED */
+.feed-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
+.feed-scroll::-webkit-scrollbar{display:none;}
+.sec-hdr{padding:22px 16px 7px;font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;background:var(--bg);}
+.row{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-bottom:.5px solid var(--bd);background:var(--bg);cursor:pointer;transition:background .15s;}
+.row:active{background:var(--s2);}
+.row.exp{opacity:.38;}
+.row-ico{width:46px;height:46px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
+.ndot{position:absolute;top:-2px;right:-2px;width:13px;height:13px;background:var(--blue);border-radius:50%;border:2.5px solid var(--bg);}
+.row-body{flex:1;min-width:0;padding-top:2px;}
+.row-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px;}
+.row-name{font-size:15px;font-weight:600;}
+.row-time{font-size:13px;color:var(--t3);flex-shrink:0;margin-left:8px;}
+.row-msg{font-size:15px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px;}
+.row-tags{display:flex;align-items:center;gap:5px;}
+.tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:8px;letter-spacing:.1px;}
+.exp-tag{font-size:11px;color:var(--red);opacity:.8;}
+
+/* COMPOSE */
+.compose{background:var(--s1);border-top:.5px solid var(--bd);border-radius:18px 18px 0 0;padding:10px 16px 12px;flex-shrink:0;}
+.cpills{display:flex;gap:5px;margin-bottom:8px;overflow-x:auto;padding-bottom:1px;}
+.cpills::-webkit-scrollbar{display:none;}
+.pill{display:flex;align-items:center;gap:5px;border:1.5px solid var(--bd);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap;background:none;flex-shrink:0;transition:all .2s;}
+.pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.crow{display:flex;align-items:center;gap:8px;}
+.cinput{flex:1;background:var(--s2);border:none;border-radius:22px;padding:10px 16px;color:var(--t1);font-size:16px;outline:none;font-family:inherit;}
+.cinput::placeholder{color:var(--t3);}
+.csend{width:42px;height:42px;border-radius:50%;background:var(--blue);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .1s;box-shadow:0 2px 10px rgba(10,132,255,.4);}
+.csend:active{transform:scale(.88);}
+
+/* MAP */
+.mfilters{background:var(--s1);padding:8px 12px;display:flex;gap:6px;border-bottom:.5px solid var(--bd);flex-shrink:0;overflow-x:auto;}
+.mfilters::-webkit-scrollbar{display:none;}
+.fchip{border:1.5px solid var(--bd);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap;background:none;transition:all .2s;}
+.fchip.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+#map{flex:1;min-height:0;}
+.mleg{background:var(--s1);padding:8px 16px;display:flex;gap:12px;border-top:.5px solid var(--bd);flex-shrink:0;flex-wrap:wrap;}
+.li{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--t3);}
+.ld{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.mc{position:absolute;z-index:1000;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(28,28,30,.88);border:.5px solid var(--bd);border-radius:14px;padding:8px 13px;cursor:pointer;font-size:12px;font-weight:700;color:var(--t1);box-shadow:0 4px 18px rgba(0,0,0,.6);display:flex;align-items:center;gap:6px;}
+.mc-sat{top:12px;right:12px;}
+.mc-sat.on{background:var(--blue);border-color:var(--blue);}
+.mc-gps{top:56px;right:12px;padding:8px 10px;}
+
+/* LEAFLET DARK */
+.leaflet-popup-content-wrapper{background:var(--s1);color:var(--t1);border:.5px solid var(--bd);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.75);}
+.leaflet-popup-tip{background:var(--s1);}
+.leaflet-popup-content{margin:12px 16px;}
+.pn{color:var(--blue);font-weight:700;font-size:13px;margin-bottom:4px;}
+.pm{font-size:14px;margin-bottom:8px;line-height:1.4;}
+.pr{display:flex;align-items:center;gap:6px;}
+.pt{font-size:11px;font-weight:700;}
+.px{font-size:11px;color:var(--t3);margin-left:auto;}
+
+/* BOTTOM TAB BAR */
+.tabbar{background:var(--s1);border-top:.5px solid var(--bd);border-radius:20px 20px 0 0;display:flex;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0);}
+.titem{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 6px;cursor:pointer;border:none;background:none;gap:3px;color:var(--t3);transition:color .2s;}
+.titem:active{opacity:.55;}
+.titem.on{color:var(--blue);}
+.tlabel{font-size:10px;font-weight:600;letter-spacing:.2px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--s3);color:var(--t1);padding:10px 20px;border-radius:20px;font-size:14px;font-weight:600;z-index:9999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* PWA */
+.pwabanner{background:var(--blue);color:#fff;padding:10px 16px;font-size:13px;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.pwainstall{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:5px 12px;font-weight:700;cursor:pointer;font-size:12px;color:#fff;margin-left:auto;}
+.pwaclose{background:none;border:none;color:rgba(255,255,255,.65);font-size:18px;cursor:pointer;padding:2px;}
+</style>
+</head>
+<body>
+
+<div id="pwa" class="pwabanner" style="display:none">
+  Als App installieren
+  <button class="pwainstall" onclick="installPWA()">Installieren</button>
+  <button class="pwaclose" onclick="this.parentElement.style.display='none'">✕</button>
+</div>
+
+<!-- STATUS BAR -->
+<div class="sb">
+  <span class="sb-time" id="clk">00:00</span>
+  <div class="sb-icons">
+    <div class="sb-signal">
+      <div class="sb-bar" style="height:30%"></div>
+      <div class="sb-bar" style="height:55%"></div>
+      <div class="sb-bar" style="height:75%"></div>
+      <div class="sb-bar" style="height:100%"></div>
+    </div>
+    <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><path d="M8 2.4C5.6 2.4 3.4 3.4 1.8 5L0 3.2C2.2 1.2 5 0 8 0s5.8 1.2 8 3.2L14.2 5C12.6 3.4 10.4 2.4 8 2.4zm0 3.2c-1.6 0-3 .6-4 1.6L2.4 5.6C3.8 4.2 5.8 3.4 8 3.4s4.2.8 5.6 2.2L12 7.2C11 6.2 9.6 5.6 8 5.6zm0 3.2c-.8 0-1.6.3-2.2.9L8 12l2.2-2.3C9.6 9.1 8.8 8.8 8 8.8z"/></svg>
+    <div class="bat"><div class="bat-fill"></div></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="nav">
+  <div class="nav-ico">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2L4 5.5v5.5c0 5.25 3.4 10.15 8 11.5 4.6-1.35 8-6.25 8-11.5V5.5L12 2z"/><path d="M9 12l2 2 4-4" stroke="rgba(255,255,255,.55)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="nav-txt">
+    <div class="nav-title">Sichtungen Schärding</div>
+    <div class="nav-sub"><span class="live-dot"></span>LIVE · 525 Mitglieder</div>
+  </div>
+  <button class="nav-btn" id="sfx-btn" onclick="toggleSFX()">
+    <svg id="bell-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  </button>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- FEED -->
+  <div class="screen on" id="screen-feed">
+    <div class="feed-scroll" id="feed"></div>
+    <div class="compose">
+      <div class="cpills">
+        <button class="pill" id="p-dienst" onclick="selType('dienst')"><span class="pdot" style="background:var(--cd)"></span>Streife</button>
+        <button class="pill" id="p-zivil"  onclick="selType('zivil')"><span class="pdot" style="background:var(--cz)"></span>Zivil</button>
+        <button class="pill" id="p-radar"  onclick="selType('radar')"><span class="pdot" style="background:var(--cr)"></span>Radar</button>
+        <button class="pill" id="p-unbekannt" onclick="selType('unbekannt')"><span class="pdot" style="background:var(--cu)"></span>Unbekannt</button>
+      </div>
+      <div class="crow">
+        <input class="cinput" id="inp" placeholder="Sichtung melden…" maxlength="200" onkeydown="if(event.key==='Enter')send()">
+        <button class="csend" onclick="send()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="screen" id="screen-map">
+    <div class="mfilters">
+      <div class="fchip on" onclick="setF('alle',this)">Alle</div>
+      <div class="fchip" onclick="setF('dienst',this)">Streife</div>
+      <div class="fchip" onclick="setF('zivil',this)">Zivil</div>
+      <div class="fchip" onclick="setF('radar',this)">Radar</div>
+      <div class="fchip" onclick="setF('unbekannt',this)">Unbekannt</div>
+    </div>
+    <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
+      <div id="map" style="flex:1"></div>
+      <button class="mc mc-sat" id="sat-btn" onclick="toggleSat()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2m-3.64-6.36-1.42 1.42M7.05 16.95l-1.41 1.41M16.95 16.95l1.41 1.41M7.05 7.05 5.64 5.64"/></svg>
+        <span id="sat-label">Satellit</span>
+      </button>
+      <button class="mc mc-gps" onclick="doGPS()" title="Mein Standort">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+      </button>
+    </div>
+    <div class="mleg">
+      <div class="li"><span class="ld" style="background:var(--cd)"></span>Streife</div>
+      <div class="li"><span class="ld" style="background:var(--cz)"></span>Zivil</div>
+      <div class="li"><span class="ld" style="background:var(--cr)"></span>Radar</div>
+      <div class="li"><span class="ld" style="background:var(--cu)"></span>Unbekannt</div>
+      <div class="li"><span class="ld" style="background:#555;opacity:.4"></span>Abgelaufen</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM TAB BAR -->
+<div class="tabbar">
+  <button class="titem on" id="t-feed" onclick="goTab('feed')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
+      <circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none"/>
+    </svg>
+    <span class="tlabel">Meldungen</span>
+  </button>
+  <button class="titem" id="t-map" onclick="goTab('map')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+      <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+    </svg>
+    <span class="tlabel">Karte</span>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CLR={dienst:'#0a84ff',zivil:'#ff9f0a',radar:'#ff453a',unbekannt:'#636366'};
+const LBL={dienst:'Streife',zivil:'Zivil',radar:'Radar',unbekannt:'Unbekannt'};
+const AVC=['#0a84ff','#30d158','#ff9f0a','#ff453a','#bf5af2','#ff375f','#5ac8fa'];
+const EXP=2*60*60*1000;
+
+const BELL_ON=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
+const BELL_OFF=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.56 2.9A7 7 0 0 1 19 9v4m-2 4H3s3-2 3-9a6 6 0 0 1 .65-2.74M13.73 21a2 2 0 0 1-3.46 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
+
+function typeIcon(type,color){
+  if(type==='dienst')return`<svg width="20" height="20" viewBox="0 0 24 24" fill="${color}"><path d="M12 2L4 5.5v5.5c0 5.25 3.4 10.15 8 11.5 4.6-1.35 8-6.25 8-11.5V5.5L12 2z"/></svg>`;
+  if(type==='zivil')return`<svg width="20" height="20" viewBox="0 0 24 24" fill="${color}"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>`;
+  if(type==='radar')return`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="${color}" stroke="none"/></svg>`;
+  return`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9 9c.18-1.84 1.63-3 3-3s2.82 1.16 3 3c.18 1.84-1.2 2.5-3 3"/><circle cx="12" cy="17" r="1.2" fill="${color}" stroke="none"/></svg>`;
+}
+
+let lmap=null,osl=null,satl=null,sat=false,sfx=true,ctype='dienst',cfilter='alle',mkrs=[];
+let dpwa=null;
+
+const T=Date.now();
+const rows=[
+  {id:1,name:'Niklas Hubinger',msg:'Esternberg durch',type:'dienst',ts:T-10*60000,lat:48.4368,lng:13.5263},
+  {id:2,name:'Alexander Widegger',msg:'Eisenbirn ause Richtung Ludham',type:'zivil',ts:T-25*60000,lat:48.4502,lng:13.4831},
+  {id:3,name:'Joni',msg:'Raab durch',type:'dienst',ts:T-45*60000,lat:48.3615,lng:13.6538},
+  {id:4,name:'Drumme Bua',msg:'Wienertsham durch Richtung azs',type:'zivil',ts:T-55*60000,lat:48.4112,lng:13.5987},
+  {id:5,name:'Çiňe',msg:'Wernstein Motorikpark vorbei',type:'radar',ts:T-75*60000,lat:48.5021,lng:13.4412},
+  {id:6,name:'Çiňe',msg:'Richtung Schärding ause',type:'unbekannt',ts:T-130*60000,lat:48.4539,lng:13.4347},
+  {id:7,name:'Kilian Jerabek',msg:'Kiwara ziang leid ausa Münzkircha feitinger',type:'dienst',ts:T-150*60000,lat:48.4721,lng:13.5623},
+];
+
+function avc(n){let h=0;for(let c of n)h=c.charCodeAt(0)+((h<<5)-h);return AVC[Math.abs(h)%AVC.length];}
+function isExp(s){return Date.now()-s.ts>EXP;}
+function isFresh(s){return Date.now()-s.ts<5*60000;}
+function ago(ts){
+  const m=Math.floor((Date.now()-ts)/60000);
+  if(m<1)return 'jetzt';if(m<60)return m+'m';
+  const h=Math.floor(m/60);if(h<24)return h+'h';return Math.floor(h/24)+'d';
+}
+
+function renderFeed(){
+  const el=document.getElementById('feed');
+  const sorted=[...rows].sort((a,b)=>b.ts-a.ts);
+  const active=sorted.filter(s=>!isExp(s));
+  const expired=sorted.filter(s=>isExp(s));
+  let html='';
+  if(active.length) html+=`<div class="sec-hdr">Aktive Sichtungen · ${active.length}</div>`+active.map(rowHTML).join('');
+  if(expired.length) html+=`<div class="sec-hdr">Abgelaufen</div>`+expired.map(rowHTML).join('');
+  el.innerHTML=html;
+}
+
+function rowHTML(s){
+  const c=CLR[s.type],e=isExp(s),f=isFresh(s);
+  return `<div class="row${e?' exp':''}">
+    <div class="row-ico" style="background:${c}22">${typeIcon(s.type,c)}${f?'<span class="ndot"></span>':''}</div>
+    <div class="row-body">
+      <div class="row-top">
+        <span class="row-name">${s.name}</span>
+        <span class="row-time">${ago(s.ts)}</span>
+      </div>
+      <div class="row-msg">${s.msg}</div>
+      <div class="row-tags">
+        <span class="tag" style="background:${c}22;color:${c}">${LBL[s.type]}</span>
+        ${e?'<span class="exp-tag">abgelaufen</span>':''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function initMap(){
+  if(lmap)return;
+  lmap=L.map('map',{zoomControl:false}).setView([48.43,13.50],11);
+  L.control.zoom({position:'bottomright'}).addTo(lmap);
+  osl=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
+  satl=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'© Esri'});
+  osl.addTo(lmap);renderMkrs();
+}
+
+function mkrHTML(type,color,expired){
+  return`<div style="width:40px;height:40px;border-radius:50%;background:${color};border:3px solid ${expired?'#555':'#fff'};display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.6);opacity:${expired?.28:1}">${typeIcon(type,'white')}</div>`;
+}
+
+function renderMkrs(){
+  mkrs.forEach(m=>lmap.removeLayer(m));mkrs=[];
+  (cfilter==='alle'?rows:rows.filter(s=>s.type===cfilter)).forEach(s=>{
+    const c=CLR[s.type],e=isExp(s);
+    const ico=L.divIcon({className:'',html:mkrHTML(s.type,c,e),iconSize:[40,40],iconAnchor:[20,20],popupAnchor:[0,-24]});
+    mkrs.push(L.marker([s.lat,s.lng],{icon:ico}).addTo(lmap).bindPopup(
+      `<div class="pn">${s.name}</div><div class="pm">${s.msg}</div><div class="pr"><span style="width:8px;height:8px;border-radius:50%;background:${c};display:inline-block;flex-shrink:0"></span><span class="pt" style="color:${c}">${LBL[s.type]}</span><span class="px">${ago(s.ts)}${e?' · abgelaufen':''}</span></div>`
+    ));
+  });
+}
+
+function toggleSat(){
+  sat=!sat;const b=document.getElementById('sat-btn');const l=document.getElementById('sat-label');
+  if(sat){lmap.removeLayer(osl);satl.addTo(lmap);b.classList.add('on');l.textContent='Karte';}
+  else{lmap.removeLayer(satl);osl.addTo(lmap);b.classList.remove('on');l.textContent='Satellit';}
+}
+
+function setF(f,el){
+  cfilter=f;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');if(lmap)renderMkrs();
+}
+
+function doGPS(){
+  if(!navigator.geolocation){toast('GPS nicht verfügbar');return;}
+  navigator.geolocation.getCurrentPosition(p=>{
+    const{latitude:la,longitude:ln}=p.coords;
+    const ico=L.divIcon({className:'',html:`<div style="width:22px;height:22px;border-radius:50%;background:#30d158;border:3px solid white;box-shadow:0 2px 10px rgba(0,0,0,.55)"></div>`,iconSize:[22,22],iconAnchor:[11,11]});
+    L.marker([la,ln],{icon:ico}).addTo(lmap).bindPopup('<b>Dein Standort</b>').openPopup();
+    lmap.flyTo([la,ln],14);
+  },()=>toast('GPS-Zugriff verweigert'));
+}
+
+function toggleSFX(){
+  sfx=!sfx;document.getElementById('sfx-btn').innerHTML=sfx?BELL_ON:BELL_OFF;
+  toast(sfx?'Ton aktiviert':'Ton deaktiviert');
+}
+
+function beep(){
+  if(!sfx)return;
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [0,165].forEach(d=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=900+d;o.type='sine';
+      const t=ctx.currentTime+d/1000;
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.02);
+      g.gain.exponentialRampToValueAtTime(.001,t+.25);
+      o.start(t);o.stop(t+.26);
+    });
+  }catch(e){}
+}
+
+function toast(msg,ms=2200){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');
+  setTimeout(()=>el.classList.remove('on'),ms);
+}
+
+function selType(t){
+  ctype=t;
+  ['dienst','zivil','radar','unbekannt'].forEach(k=>{
+    const p=document.getElementById('p-'+k),on=k===t;
+    p.classList.toggle('sel',on);
+    p.style.background=on?CLR[k]+'1f':'';
+    p.style.borderColor=on?CLR[k]+'88':'';
+    p.style.color=on?CLR[k]:'';
+  });
+}
+
+function send(){
+  const inp=document.getElementById('inp'),txt=inp.value.trim();if(!txt)return;
+  const la=48.43+(Math.random()-.5)*.2,ln=13.50+(Math.random()-.5)*.25;
+  rows.unshift({id:Date.now(),name:'Du',msg:txt,type:ctype,ts:Date.now(),lat:la,lng:ln,me:true});
+  inp.value='';renderFeed();beep();toast('Sichtung gemeldet');
+  if(lmap){
+    const c=CLR[ctype];
+    const ico=L.divIcon({className:'',html:mkrHTML(ctype,c,false),iconSize:[40,40],iconAnchor:[20,20],popupAnchor:[0,-24]});
+    L.marker([la,ln],{icon:ico}).addTo(lmap).bindPopup(`<div class="pn">Du</div><div class="pm">${txt}</div>`).openPopup();
+    lmap.flyTo([la,ln],13);
+  }
+}
+
+function goTab(t){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.titem').forEach(b=>b.classList.remove('on'));
+  document.getElementById('screen-'+t).classList.add('on');
+  document.getElementById('t-'+t).classList.add('on');
+  if(t==='map')setTimeout(()=>{initMap();lmap.invalidateSize();},100);
+}
+
+function tick(){const n=new Date();document.getElementById('clk').textContent=n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');}
+tick();setInterval(tick,30000);
+
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dpwa=e;document.getElementById('pwa').style.display='flex';});
+function installPWA(){if(dpwa){dpwa.prompt();dpwa.userChoice.then(()=>{dpwa=null;document.getElementById('pwa').style.display='none';});}}
+
+selType('dienst');
+setInterval(()=>{renderFeed();if(lmap)renderMkrs();},60000);
+renderFeed();
+</script>
+</body>
+</html>
