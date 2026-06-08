@@ -1,24 +1,36 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, BackHandler } from 'react-native';
+import WebView from 'react-native-webview';
+import { useRef, useEffect } from 'react';
 
 export default function App() {
+  const webRef = useRef<WebView>(null);
+
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      webRef.current?.goBack();
+      return true;
+    });
+    return () => sub.remove();
+  }, []);
+
   return (
-    <View style={styles.root}>
-      <Text style={styles.text}>🚔 Polizei App läuft!</Text>
-    </View>
+    <>
+      <StatusBar style="light" hidden />
+      <WebView
+        ref={webRef}
+        source={{ uri: 'https://dannedotexe.github.io/Polizei-App/' }}
+        style={styles.webview}
+        geolocationEnabled={true}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        allowsInlineMediaPlayback={true}
+        mediaPlaybackRequiresUserAction={false}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#111',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh' as any,
-  },
-  text: {
-    color: '#25d366',
-    fontSize: 28,
-    fontWeight: '700',
-  },
+  webview: { flex: 1, backgroundColor: '#000' },
 });

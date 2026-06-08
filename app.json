@@ -1,23 +1,21 @@
 {
   "expo": {
-    "name": "Polizei App",
+    "name": "Sichtungen Schärding",
     "slug": "polizei-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "web": {
-      "bundler": "metro",
-      "output": "single"
-    },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.polizei.app"
+      "supportsTablet": false,
+      "bundleIdentifier": "com.polizei.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Für deinen Standort bei Sichtungsmeldungen."
+      }
     },
     "android": {
       "package": "com.polizei.app",
-      "permissions": ["ACCESS_FINE_LOCATION"]
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
-    "scheme": "polizei-app",
-    "plugins": ["expo-router"]
+    "scheme": "polizei-app"
   }
 }
