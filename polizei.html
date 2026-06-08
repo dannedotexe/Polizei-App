@@ -59,6 +59,16 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 .mc-sat.on{background:var(--blue);}
 .mc-gps{top:154px;right:12px;padding:9px 11px;}
 
+/* PIN MODE */
+.crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);z-index:2000;pointer-events:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));}
+.pin-bar{position:absolute;bottom:0;left:0;right:0;z-index:2000;background:var(--s1);border-radius:20px 20px 0 0;padding:16px 16px 32px;display:none;box-shadow:0 -4px 30px rgba(0,0,0,.5);}
+.pin-bar-title{text-align:center;font-size:13px;color:var(--t3);margin-bottom:12px;}
+.pin-loc{text-align:center;font-size:15px;font-weight:600;margin-bottom:14px;min-height:22px;}
+.pin-actions{display:flex;gap:8px;}
+.pin-cancel{flex:1;background:var(--s2);border:none;border-radius:14px;padding:12px;font-size:15px;font-weight:600;color:var(--t1);cursor:pointer;}
+.pin-gps{width:48px;background:var(--s2);border:none;border-radius:14px;padding:12px;color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pin-confirm{flex:2;background:var(--blue);border:none;border-radius:14px;padding:12px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 2px 10px rgba(10,132,255,.4);}
+
 /* BOTTOM SHEET */
 .bsheet{position:absolute;bottom:0;left:0;right:0;z-index:1500;background:var(--s1);border-radius:20px 20px 0 0;display:flex;flex-direction:column;transition:transform .35s cubic-bezier(.32,.72,0,1);box-shadow:0 -4px 30px rgba(0,0,0,.5);}
 .bsheet.peek{transform:translateY(calc(100% - 110px));}
@@ -188,6 +198,29 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
   </button>
 
+  <!-- PIN MODE crosshair -->
+  <div class="crosshair" id="crosshair" style="display:none">
+    <svg width="46" height="46" viewBox="0 0 46 46" fill="none">
+      <circle cx="23" cy="23" r="5" fill="#0a84ff"/>
+      <line x1="23" y1="2" x2="23" y2="15" stroke="#0a84ff" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="23" y1="31" x2="23" y2="44" stroke="#0a84ff" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="2" y1="23" x2="15" y2="23" stroke="#0a84ff" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="31" y1="23" x2="44" y2="23" stroke="#0a84ff" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <!-- PIN BAR -->
+  <div class="pin-bar" id="pin-bar">
+    <div class="pin-bar-title">Standort auf der Karte wählen</div>
+    <div class="pin-loc" id="pin-loc">Standort wird geladen…</div>
+    <div class="pin-actions">
+      <button class="pin-cancel" onclick="cancelPin()">Abbrechen</button>
+      <button class="pin-gps" onclick="pinGPS()" title="GPS-Standort">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+      </button>
+      <button class="pin-confirm" onclick="confirmPin()">Hier melden</button>
+    </div>
+  </div>
+
   <!-- BOTTOM SHEET -->
   <div class="bsheet peek" id="bsheet">
     <div class="sheet-handle-area" onclick="toggleSheet()">
@@ -197,7 +230,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
           <div class="sheet-count" id="sheet-count">Sichtungen</div>
           <div class="sheet-sub">Bezirk Schärding, OÖ</div>
         </div>
-        <button class="report-btn" onclick="event.stopPropagation();openCompose()">+ Melden</button>
+        <button class="report-btn" onclick="event.stopPropagation();enterPinMode()">+ Melden</button>
       </div>
     </div>
     <div class="sheet-divider"></div>
@@ -248,7 +281,7 @@ function typeIcon(type,color){
 }
 
 let lmap=null,osl=null,satl=null,sat=false,sfx=true,ctype='dienst',cfilter='alle',mkrs=[],sheetOpen=false;
-let dpwa=null,pendingGPS=null;
+let dpwa=null,pendingLoc=null,pinActive=false,pinMoveTimer=null;
 
 const T=Date.now();
 const rows=[
@@ -381,23 +414,100 @@ function toast(msg,ms=2200){
   setTimeout(()=>el.classList.remove('on'),ms);
 }
 
+async function reverseGeocode(lat,lng){
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=de`);
+    const d=await r.json();
+    if(d&&d.address){
+      const a=d.address;
+      return a.village||a.town||a.city||a.municipality||a.suburb||a.county||d.display_name.split(',')[0];
+    }
+  }catch(e){}
+  return`${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+}
+
+function enterPinMode(){
+  pinActive=true;
+  if(sheetOpen)toggleSheet();
+  document.getElementById('bsheet').style.visibility='hidden';
+  document.getElementById('crosshair').style.display='';
+  document.getElementById('pin-bar').style.display='block';
+  document.getElementById('pin-loc').textContent='Standort wird geladen…';
+  updatePinLoc();
+  lmap.on('moveend',onPinMove);
+}
+
+function onPinMove(){
+  document.getElementById('pin-loc').textContent='Standort wird geladen…';
+  clearTimeout(pinMoveTimer);
+  pinMoveTimer=setTimeout(updatePinLoc,600);
+}
+
+async function updatePinLoc(){
+  const c=lmap.getCenter();
+  const name=await reverseGeocode(c.lat,c.lng);
+  if(pinActive){
+    pendingLoc={lat:c.lat,lng:c.lng,name};
+    document.getElementById('pin-loc').textContent=name;
+  }
+}
+
+function cancelPin(){
+  exitPinMode();
+  pendingLoc=null;
+}
+
+function confirmPin(){
+  const c=lmap.getCenter();
+  const name=document.getElementById('pin-loc').textContent;
+  pendingLoc={lat:c.lat,lng:c.lng,name};
+  exitPinMode();
+  openCompose();
+}
+
+function pinGPS(){
+  if(!navigator.geolocation){toast('GPS nicht verfügbar');return;}
+  document.getElementById('pin-loc').textContent='GPS wird ermittelt…';
+  navigator.geolocation.getCurrentPosition(
+    p=>lmap.flyTo([p.coords.latitude,p.coords.longitude],14),
+    ()=>toast('GPS-Zugriff verweigert'),
+    {timeout:6000,maximumAge:30000}
+  );
+}
+
+function exitPinMode(){
+  pinActive=false;
+  lmap.off('moveend',onPinMove);
+  clearTimeout(pinMoveTimer);
+  document.getElementById('crosshair').style.display='none';
+  document.getElementById('pin-bar').style.display='none';
+  document.getElementById('bsheet').style.visibility='';
+}
+
 function openCompose(){
   document.getElementById('compose-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('inp').focus(),100);
-  pendingGPS=null;
   const locText=document.getElementById('loc-text');
-  locText.textContent='Standort wird ermittelt…';
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(
-      pos=>{pendingGPS=pos.coords;locText.textContent=`Dein Standort (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`;},
-      ()=>{const c=lmap.getCenter();locText.textContent=`Kartenmitte (kein GPS-Zugriff)`;},
-      {timeout:6000,maximumAge:30000}
-    );
+  if(pendingLoc){
+    locText.textContent=pendingLoc.name;
   } else {
-    locText.textContent='Kartenmitte (kein GPS verfügbar)';
+    locText.textContent='Standort wird ermittelt…';
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        async pos=>{
+          const name=await reverseGeocode(pos.coords.latitude,pos.coords.longitude);
+          pendingLoc={lat:pos.coords.latitude,lng:pos.coords.longitude,name};
+          locText.textContent=name;
+        },
+        ()=>{const c=lmap.getCenter();pendingLoc={lat:c.lat,lng:c.lng,name:'Kartenmitte'};locText.textContent='Kartenmitte (kein GPS-Zugriff)';},
+        {timeout:6000,maximumAge:30000}
+      );
+    } else {
+      const c=lmap.getCenter();pendingLoc={lat:c.lat,lng:c.lng,name:'Kartenmitte'};locText.textContent='Kartenmitte (kein GPS verfügbar)';
+    }
   }
 }
-function closeCompose(){document.getElementById('compose-overlay').classList.remove('open');pendingGPS=null;}
+function closeCompose(){document.getElementById('compose-overlay').classList.remove('open');pendingLoc=null;}
 
 function selType(t){
   ctype=t;
@@ -411,9 +521,8 @@ function selType(t){
 
 function send(){
   const inp=document.getElementById('inp'),txt=inp.value.trim();if(!txt)return;
-  let la,ln;
-  if(pendingGPS){la=pendingGPS.latitude;ln=pendingGPS.longitude;}
-  else{const c=lmap.getCenter();la=c.lat;ln=c.lng;}
+  const loc=pendingLoc||{lat:lmap.getCenter().lat,lng:lmap.getCenter().lng};
+  const la=loc.lat,ln=loc.lng;
   rows.unshift({id:Date.now(),name:'Du',msg:txt,type:ctype,ts:Date.now(),lat:la,lng:ln});
   inp.value='';closeCompose();renderSheet();beep();
   const c=CLR[ctype];
