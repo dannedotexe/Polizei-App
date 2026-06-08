@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Polizei App",
+    "slug": "polizei-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.polizei.app"
+    },
+    "android": {
+      "package": "com.polizei.app",
+      "permissions": ["ACCESS_FINE_LOCATION"]
+    },
+    "scheme": "polizei-app",
+    "plugins": ["expo-router"]
+  }
+}
