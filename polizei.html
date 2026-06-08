@@ -25,7 +25,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 /* STATUS BAR */
 .sb{background:var(--bg);padding:14px 24px 4px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
 .sb-time{font-size:15px;font-weight:600;letter-spacing:-.2px;}
-.sb-icons{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t1);}
+.sb-icons{display:flex;align-items:center;gap:5px;color:var(--t1);}
 .sb-signal{display:flex;align-items:flex-end;gap:1.5px;height:12px;}
 .sb-bar{width:3px;background:var(--t1);border-radius:1px;}
 .bat{width:22px;height:11px;border:1.5px solid var(--t1);border-radius:3px;position:relative;display:flex;align-items:center;padding:1.5px;}
@@ -34,13 +34,13 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 
 /* NAV HEADER */
 .nav{background:var(--bg);padding:6px 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:.5px solid var(--bd);}
-.nav-ico{width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#1a7ee8,#0455ba);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 3px 10px rgba(10,132,255,.4);}
+.nav-ico{width:38px;height:38px;border-radius:13px;background:linear-gradient(145deg,#1a7ee8,#0455ba);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px rgba(10,132,255,.4);}
 .nav-txt{flex:1;}
 .nav-title{font-size:17px;font-weight:700;letter-spacing:-.4px;}
 .nav-sub{font-size:12px;color:var(--t3);margin-top:2px;display:flex;align-items:center;gap:5px;}
 .live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 2s ease-in-out infinite;flex-shrink:0;}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
-.nav-btn{width:34px;height:34px;border-radius:50%;background:var(--s2);border:none;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0;}
+.nav-btn{width:34px;height:34px;border-radius:50%;background:var(--s2);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--t1);}
 
 /* CONTENT */
 .content{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
@@ -50,16 +50,12 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 /* FEED */
 .feed-scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}
 .feed-scroll::-webkit-scrollbar{display:none;}
-
 .sec-hdr{padding:22px 16px 7px;font-size:13px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;background:var(--bg);}
-
 .row{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-bottom:.5px solid var(--bd);background:var(--bg);cursor:pointer;transition:background .15s;}
 .row:active{background:var(--s2);}
 .row.exp{opacity:.38;}
-
-.row-ico{width:46px;height:46px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;position:relative;}
+.row-ico{width:46px;height:46px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
 .ndot{position:absolute;top:-2px;right:-2px;width:13px;height:13px;background:var(--blue);border-radius:50%;border:2.5px solid var(--bg);}
-
 .row-body{flex:1;min-width:0;padding-top:2px;}
 .row-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px;}
 .row-name{font-size:15px;font-weight:600;}
@@ -73,8 +69,8 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 .compose{background:var(--s1);border-top:.5px solid var(--bd);border-radius:18px 18px 0 0;padding:10px 16px 12px;flex-shrink:0;}
 .cpills{display:flex;gap:5px;margin-bottom:8px;overflow-x:auto;padding-bottom:1px;}
 .cpills::-webkit-scrollbar{display:none;}
-.pill{display:flex;align-items:center;gap:4px;border:1.5px solid var(--bd);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap;background:none;flex-shrink:0;transition:all .2s;}
-.pdot{width:6px;height:6px;border-radius:50%;}
+.pill{display:flex;align-items:center;gap:5px;border:1.5px solid var(--bd);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap;background:none;flex-shrink:0;transition:all .2s;}
+.pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 .crow{display:flex;align-items:center;gap:8px;}
 .cinput{flex:1;background:var(--s2);border:none;border-radius:22px;padding:10px 16px;color:var(--t1);font-size:16px;outline:none;font-family:inherit;}
 .cinput::placeholder{color:var(--t3);}
@@ -90,10 +86,10 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 .mleg{background:var(--s1);padding:8px 16px;display:flex;gap:12px;border-top:.5px solid var(--bd);flex-shrink:0;flex-wrap:wrap;}
 .li{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--t3);}
 .ld{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-.mc{position:absolute;z-index:1000;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(28,28,30,.88);border:.5px solid var(--bd);border-radius:14px;padding:8px 12px;cursor:pointer;font-size:12px;font-weight:700;color:var(--t1);box-shadow:0 4px 18px rgba(0,0,0,.6);}
+.mc{position:absolute;z-index:1000;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(28,28,30,.88);border:.5px solid var(--bd);border-radius:14px;padding:8px 13px;cursor:pointer;font-size:12px;font-weight:700;color:var(--t1);box-shadow:0 4px 18px rgba(0,0,0,.6);display:flex;align-items:center;gap:6px;}
 .mc-sat{top:12px;right:12px;}
 .mc-sat.on{background:var(--blue);border-color:var(--blue);}
-.mc-gps{top:56px;right:12px;font-size:17px;padding:7px 10px;}
+.mc-gps{top:56px;right:12px;padding:8px 10px;}
 
 /* LEAFLET DARK */
 .leaflet-popup-content-wrapper{background:var(--s1);color:var(--t1);border:.5px solid var(--bd);border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.75);}
@@ -107,11 +103,10 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 
 /* BOTTOM TAB BAR */
 .tabbar{background:var(--s1);border-top:.5px solid var(--bd);border-radius:20px 20px 0 0;display:flex;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom,0);}
-.titem{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;cursor:pointer;border:none;background:none;gap:2px;transition:opacity .15s;}
+.titem{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 6px;cursor:pointer;border:none;background:none;gap:3px;color:var(--t3);transition:color .2s;}
 .titem:active{opacity:.55;}
-.ticon{font-size:23px;line-height:1;}
-.tlabel{font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.2px;}
-.titem.on .tlabel{color:var(--blue);}
+.titem.on{color:var(--blue);}
+.tlabel{font-size:10px;font-weight:600;letter-spacing:.2px;}
 
 /* TOAST */
 .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--s3);color:var(--t1);padding:10px 20px;border-radius:20px;font-size:14px;font-weight:600;z-index:9999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;}
@@ -126,7 +121,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 <body>
 
 <div id="pwa" class="pwabanner" style="display:none">
-  📱 Als App installieren
+  Als App installieren
   <button class="pwainstall" onclick="installPWA()">Installieren</button>
   <button class="pwaclose" onclick="this.parentElement.style.display='none'">✕</button>
 </div>
@@ -148,12 +143,16 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 
 <!-- HEADER -->
 <div class="nav">
-  <div class="nav-ico">🚔</div>
+  <div class="nav-ico">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2L4 5.5v5.5c0 5.25 3.4 10.15 8 11.5 4.6-1.35 8-6.25 8-11.5V5.5L12 2z"/><path d="M9 12l2 2 4-4" stroke="rgba(255,255,255,.55)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
   <div class="nav-txt">
     <div class="nav-title">Sichtungen Schärding</div>
     <div class="nav-sub"><span class="live-dot"></span>LIVE · 525 Mitglieder</div>
   </div>
-  <button class="nav-btn" id="sfx-btn" onclick="toggleSFX()">🔔</button>
+  <button class="nav-btn" id="sfx-btn" onclick="toggleSFX()">
+    <svg id="bell-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  </button>
 </div>
 
 <!-- CONTENT -->
@@ -163,11 +162,11 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
   <div class="screen on" id="screen-feed">
     <div class="feed-scroll" id="feed"></div>
     <div class="compose">
-      <div class="cpills" id="pills">
-        <button class="pill" id="p-dienst" onclick="selType('dienst')"><span class="pdot" style="background:var(--cd)"></span>🚔 Streife</button>
-        <button class="pill" id="p-zivil"  onclick="selType('zivil')"><span class="pdot" style="background:var(--cz)"></span>🚗 Zivil</button>
-        <button class="pill" id="p-radar"  onclick="selType('radar')"><span class="pdot" style="background:var(--cr)"></span>📡 Radar</button>
-        <button class="pill" id="p-unbekannt" onclick="selType('unbekannt')"><span class="pdot" style="background:var(--cu)"></span>❓ Unbekannt</button>
+      <div class="cpills">
+        <button class="pill" id="p-dienst" onclick="selType('dienst')"><span class="pdot" style="background:var(--cd)"></span>Streife</button>
+        <button class="pill" id="p-zivil"  onclick="selType('zivil')"><span class="pdot" style="background:var(--cz)"></span>Zivil</button>
+        <button class="pill" id="p-radar"  onclick="selType('radar')"><span class="pdot" style="background:var(--cr)"></span>Radar</button>
+        <button class="pill" id="p-unbekannt" onclick="selType('unbekannt')"><span class="pdot" style="background:var(--cu)"></span>Unbekannt</button>
       </div>
       <div class="crow">
         <input class="cinput" id="inp" placeholder="Sichtung melden…" maxlength="200" onkeydown="if(event.key==='Enter')send()">
@@ -182,15 +181,20 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
   <div class="screen" id="screen-map">
     <div class="mfilters">
       <div class="fchip on" onclick="setF('alle',this)">Alle</div>
-      <div class="fchip" onclick="setF('dienst',this)">🚔 Streife</div>
-      <div class="fchip" onclick="setF('zivil',this)">🚗 Zivil</div>
-      <div class="fchip" onclick="setF('radar',this)">📡 Radar</div>
-      <div class="fchip" onclick="setF('unbekannt',this)">❓ Unbekannt</div>
+      <div class="fchip" onclick="setF('dienst',this)">Streife</div>
+      <div class="fchip" onclick="setF('zivil',this)">Zivil</div>
+      <div class="fchip" onclick="setF('radar',this)">Radar</div>
+      <div class="fchip" onclick="setF('unbekannt',this)">Unbekannt</div>
     </div>
     <div style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column">
       <div id="map" style="flex:1"></div>
-      <button class="mc mc-sat" id="sat-btn" onclick="toggleSat()">🛰️ Satellit</button>
-      <button class="mc mc-gps" onclick="doGPS()">📍</button>
+      <button class="mc mc-sat" id="sat-btn" onclick="toggleSat()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2m-3.64-6.36-1.42 1.42M7.05 16.95l-1.41 1.41M16.95 16.95l1.41 1.41M7.05 7.05 5.64 5.64"/></svg>
+        <span id="sat-label">Satellit</span>
+      </button>
+      <button class="mc mc-gps" onclick="doGPS()" title="Mein Standort">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+      </button>
     </div>
     <div class="mleg">
       <div class="li"><span class="ld" style="background:var(--cd)"></span>Streife</div>
@@ -206,11 +210,17 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 <!-- BOTTOM TAB BAR -->
 <div class="tabbar">
   <button class="titem on" id="t-feed" onclick="goTab('feed')">
-    <span class="ticon">📋</span>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
+      <circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none"/>
+    </svg>
     <span class="tlabel">Meldungen</span>
   </button>
   <button class="titem" id="t-map" onclick="goTab('map')">
-    <span class="ticon">🗺️</span>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+      <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+    </svg>
     <span class="tlabel">Karte</span>
   </button>
 </div>
@@ -220,22 +230,31 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 <script>
 const CLR={dienst:'#0a84ff',zivil:'#ff9f0a',radar:'#ff453a',unbekannt:'#636366'};
 const LBL={dienst:'Streife',zivil:'Zivil',radar:'Radar',unbekannt:'Unbekannt'};
-const EMJ={dienst:'🚔',zivil:'🚗',radar:'📡',unbekannt:'❓'};
 const AVC=['#0a84ff','#30d158','#ff9f0a','#ff453a','#bf5af2','#ff375f','#5ac8fa'];
 const EXP=2*60*60*1000;
+
+const BELL_ON=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
+const BELL_OFF=`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.56 2.9A7 7 0 0 1 19 9v4m-2 4H3s3-2 3-9a6 6 0 0 1 .65-2.74M13.73 21a2 2 0 0 1-3.46 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
+
+function typeIcon(type,color){
+  if(type==='dienst')return`<svg width="20" height="20" viewBox="0 0 24 24" fill="${color}"><path d="M12 2L4 5.5v5.5c0 5.25 3.4 10.15 8 11.5 4.6-1.35 8-6.25 8-11.5V5.5L12 2z"/></svg>`;
+  if(type==='zivil')return`<svg width="20" height="20" viewBox="0 0 24 24" fill="${color}"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>`;
+  if(type==='radar')return`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="${color}" stroke="none"/></svg>`;
+  return`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9 9c.18-1.84 1.63-3 3-3s2.82 1.16 3 3c.18 1.84-1.2 2.5-3 3"/><circle cx="12" cy="17" r="1.2" fill="${color}" stroke="none"/></svg>`;
+}
 
 let lmap=null,osl=null,satl=null,sat=false,sfx=true,ctype='dienst',cfilter='alle',mkrs=[];
 let dpwa=null;
 
 const T=Date.now();
 const rows=[
-  {id:1,name:'Niklas Hubinger',msg:'Esternberg durch 🚔',type:'dienst',ts:T-10*60000,lat:48.4368,lng:13.5263},
+  {id:1,name:'Niklas Hubinger',msg:'Esternberg durch',type:'dienst',ts:T-10*60000,lat:48.4368,lng:13.5263},
   {id:2,name:'Alexander Widegger',msg:'Eisenbirn ause Richtung Ludham',type:'zivil',ts:T-25*60000,lat:48.4502,lng:13.4831},
   {id:3,name:'Joni',msg:'Raab durch',type:'dienst',ts:T-45*60000,lat:48.3615,lng:13.6538},
   {id:4,name:'Drumme Bua',msg:'Wienertsham durch Richtung azs',type:'zivil',ts:T-55*60000,lat:48.4112,lng:13.5987},
   {id:5,name:'Çiňe',msg:'Wernstein Motorikpark vorbei',type:'radar',ts:T-75*60000,lat:48.5021,lng:13.4412},
   {id:6,name:'Çiňe',msg:'Richtung Schärding ause',type:'unbekannt',ts:T-130*60000,lat:48.4539,lng:13.4347},
-  {id:7,name:'Kilian Jerabek',msg:'Kiwara ziang leid ausa Münzkircha feitinger 🚓',type:'dienst',ts:T-150*60000,lat:48.4721,lng:13.5623},
+  {id:7,name:'Kilian Jerabek',msg:'Kiwara ziang leid ausa Münzkircha feitinger',type:'dienst',ts:T-150*60000,lat:48.4721,lng:13.5623},
 ];
 
 function avc(n){let h=0;for(let c of n)h=c.charCodeAt(0)+((h<<5)-h);return AVC[Math.abs(h)%AVC.length];}
@@ -261,7 +280,7 @@ function renderFeed(){
 function rowHTML(s){
   const c=CLR[s.type],e=isExp(s),f=isFresh(s);
   return `<div class="row${e?' exp':''}">
-    <div class="row-ico" style="background:${c}20">${EMJ[s.type]}${f?'<span class="ndot"></span>':''}</div>
+    <div class="row-ico" style="background:${c}22">${typeIcon(s.type,c)}${f?'<span class="ndot"></span>':''}</div>
     <div class="row-body">
       <div class="row-top">
         <span class="row-name">${s.name}</span>
@@ -269,7 +288,7 @@ function rowHTML(s){
       </div>
       <div class="row-msg">${s.msg}</div>
       <div class="row-tags">
-        <span class="tag" style="background:${c}22;color:${c}">${EMJ[s.type]} ${LBL[s.type]}</span>
+        <span class="tag" style="background:${c}22;color:${c}">${LBL[s.type]}</span>
         ${e?'<span class="exp-tag">abgelaufen</span>':''}
       </div>
     </div>
@@ -285,11 +304,15 @@ function initMap(){
   osl.addTo(lmap);renderMkrs();
 }
 
+function mkrHTML(type,color,expired){
+  return`<div style="width:40px;height:40px;border-radius:50%;background:${color};border:3px solid ${expired?'#555':'#fff'};display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.6);opacity:${expired?.28:1}">${typeIcon(type,'white')}</div>`;
+}
+
 function renderMkrs(){
   mkrs.forEach(m=>lmap.removeLayer(m));mkrs=[];
   (cfilter==='alle'?rows:rows.filter(s=>s.type===cfilter)).forEach(s=>{
     const c=CLR[s.type],e=isExp(s);
-    const ico=L.divIcon({className:'',html:`<div style="width:40px;height:40px;border-radius:50%;background:${c};border:3px solid ${e?'#555':'#fff'};display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.6);font-size:17px;opacity:${e?.28:1}">${EMJ[s.type]}</div>`,iconSize:[40,40],iconAnchor:[20,20],popupAnchor:[0,-24]});
+    const ico=L.divIcon({className:'',html:mkrHTML(s.type,c,e),iconSize:[40,40],iconAnchor:[20,20],popupAnchor:[0,-24]});
     mkrs.push(L.marker([s.lat,s.lng],{icon:ico}).addTo(lmap).bindPopup(
       `<div class="pn">${s.name}</div><div class="pm">${s.msg}</div><div class="pr"><span style="width:8px;height:8px;border-radius:50%;background:${c};display:inline-block;flex-shrink:0"></span><span class="pt" style="color:${c}">${LBL[s.type]}</span><span class="px">${ago(s.ts)}${e?' · abgelaufen':''}</span></div>`
     ));
@@ -297,9 +320,9 @@ function renderMkrs(){
 }
 
 function toggleSat(){
-  sat=!sat;const b=document.getElementById('sat-btn');
-  if(sat){lmap.removeLayer(osl);satl.addTo(lmap);b.classList.add('on');b.textContent='🗺️ Karte';}
-  else{lmap.removeLayer(satl);osl.addTo(lmap);b.classList.remove('on');b.textContent='🛰️ Satellit';}
+  sat=!sat;const b=document.getElementById('sat-btn');const l=document.getElementById('sat-label');
+  if(sat){lmap.removeLayer(osl);satl.addTo(lmap);b.classList.add('on');l.textContent='Karte';}
+  else{lmap.removeLayer(satl);osl.addTo(lmap);b.classList.remove('on');l.textContent='Satellit';}
 }
 
 function setF(f,el){
@@ -319,7 +342,8 @@ function doGPS(){
 }
 
 function toggleSFX(){
-  sfx=!sfx;document.getElementById('sfx-btn').textContent=sfx?'🔔':'🔕';toast(sfx?'Ton aktiviert':'Ton deaktiviert');
+  sfx=!sfx;document.getElementById('sfx-btn').innerHTML=sfx?BELL_ON:BELL_OFF;
+  toast(sfx?'Ton aktiviert':'Ton deaktiviert');
 }
 
 function beep(){
@@ -358,9 +382,10 @@ function send(){
   const inp=document.getElementById('inp'),txt=inp.value.trim();if(!txt)return;
   const la=48.43+(Math.random()-.5)*.2,ln=13.50+(Math.random()-.5)*.25;
   rows.unshift({id:Date.now(),name:'Du',msg:txt,type:ctype,ts:Date.now(),lat:la,lng:ln,me:true});
-  inp.value='';renderFeed();beep();toast('✓ Sichtung gemeldet!');
+  inp.value='';renderFeed();beep();toast('Sichtung gemeldet');
   if(lmap){
-    const ico=L.divIcon({className:'',html:`<div style="width:40px;height:40px;border-radius:50%;background:${CLR[ctype]};border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.6);font-size:17px">${EMJ[ctype]}</div>`,iconSize:[40,40],iconAnchor:[20,20],popupAnchor:[0,-24]});
+    const c=CLR[ctype];
+    const ico=L.divIcon({className:'',html:mkrHTML(ctype,c,false),iconSize:[40,40],iconAnchor:[20,20],popupAnchor:[0,-24]});
     L.marker([la,ln],{icon:ico}).addTo(lmap).bindPopup(`<div class="pn">Du</div><div class="pm">${txt}</div>`).openPopup();
     lmap.flyTo([la,ln],13);
   }
@@ -374,11 +399,9 @@ function goTab(t){
   if(t==='map')setTimeout(()=>{initMap();lmap.invalidateSize();},100);
 }
 
-// Clock
 function tick(){const n=new Date();document.getElementById('clk').textContent=n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');}
 tick();setInterval(tick,30000);
 
-// PWA
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dpwa=e;document.getElementById('pwa').style.display='flex';});
 function installPWA(){if(dpwa){dpwa.prompt();dpwa.userChoice.then(()=>{dpwa=null;document.getElementById('pwa').style.display='none';});}}
 
